@@ -66,13 +66,7 @@ def setup_document():
     return doc
 
 
-def add_text(
-    msp,
-    text: str,
-    position: tuple[float, float],
-    height: float | None = None,
-    rotation: float = 0,
-):
+def add_text(msp, text: str, position: tuple[float, float], height: float | None = None, rotation: float = 0):
     if height is None:
         height = CAD_STYLES["text"]["height"]
 
@@ -119,6 +113,43 @@ def get_angle_degrees(start: tuple[float, float], end: tuple[float, float]) -> f
     return math.degrees(math.atan2(dy, dx))
 
 
+def distance_point_to_segment(point: tuple[float, float], start: tuple[float, float], end: tuple[float, float]) -> float:
+    px, py = point
+    ax, ay = start
+    bx, by = end
+    abx = bx - ax
+    aby = by - ay
+    ab_len_sq = abx * abx + aby * aby
+
+    if ab_len_sq == 0:
+        return math.sqrt((px - ax) ** 2 + (py - ay) ** 2)
+
+    t = ((px - ax) * abx + (py - ay) * aby) / ab_len_sq
+    t = max(0, min(1, t))
+    closest = (ax + abx * t, ay + aby * t)
+    return math.sqrt((px - closest[0]) ** 2 + (py - closest[1]) ** 2)
+
+
+def push_point_away_from_lines(
+    point: tuple[float, float],
+    move_direction: tuple[float, float],
+    lines: list[tuple[tuple[float, float], tuple[float, float]]],
+    min_clearance: float,
+    step: float = 4,
+    max_iterations: int = 20,
+) -> tuple[float, float]:
+    result = point
+    direction = normalize(move_direction)
+
+    for _ in range(max_iterations):
+        if all(distance_point_to_segment(result, start, end) >= min_clearance for start, end in lines):
+            return result
+
+        result = (result[0] + direction[0] * step, result[1] + direction[1] * step)
+
+    return result
+
+
 def add_profile_path(msp, points: list[tuple[float, float, float]], width: float):
     msp.add_lwpolyline(
         points,
@@ -150,7 +181,6 @@ def add_tick(msp, position: tuple[float, float], direction: tuple[float, float],
     x, y = position
     dx, dy = normalize(direction)
     angle = math.radians(45)
-
     tick_dx = dx * math.cos(angle) - dy * math.sin(angle)
     tick_dy = dx * math.sin(angle) + dy * math.cos(angle)
     half = size / 2
@@ -166,19 +196,12 @@ def add_tick(msp, position: tuple[float, float], direction: tuple[float, float],
     )
 
 
-def add_angle_tick(
-    msp,
-    center: tuple[float, float],
-    radius: float,
-    angle_degrees: float,
-    size: float = 15,
-):
+def add_angle_tick(msp, center: tuple[float, float], radius: float, angle_degrees: float, size: float = 15):
     angle = math.radians(angle_degrees)
     point = (center[0] + math.cos(angle) * radius, center[1] + math.sin(angle) * radius)
     tangent = (-math.sin(angle), math.cos(angle))
     tx, ty = normalize(tangent)
     tick_angle = math.radians(45)
-
     tick_dx = tx * math.cos(tick_angle) - ty * math.sin(tick_angle)
     tick_dy = tx * math.sin(tick_angle) + ty * math.cos(tick_angle)
     half = size / 2
@@ -204,6 +227,7 @@ def add_hook_label(
     side_direction: tuple[float, float],
     position: str,
     hook: dict,
+    avoidance_lines: list[tuple[tuple[float, float], tuple[float, float]]] | None = None,
 ):
     label_anchor = hook.get("label_anchor", "base")
     label_side_offset = float(hook.get("label_side_offset", 16))
@@ -214,6 +238,17 @@ def add_hook_label(
             hook_tip[0] + hook_direction[0] * label_side_offset + line_direction[0] * label_forward_offset,
             hook_tip[1] + hook_direction[1] * label_side_offset + line_direction[1] * label_forward_offset,
         )
+
+        if hook.get("label_avoid_profile", True) and avoidance_lines:
+            label_position = push_point_away_from_lines(
+                point=label_position,
+                move_direction=hook_direction,
+                lines=avoidance_lines,
+                min_clearance=float(hook.get("label_min_clearance", 18)),
+                step=float(hook.get("label_avoid_step", 4)),
+                max_iterations=int(hook.get("label_avoid_max_iterations", 20)),
+            )
+
     elif label_anchor == "base":
         label_back_offset = float(hook.get("label_back_offset", 18))
 
@@ -241,13 +276,7 @@ def add_hook_label(
     )
 
 
-def add_profile_line_label(
-    msp,
-    element: dict,
-    start: tuple[float, float],
-    end: tuple[float, float],
-    parameters: dict[str, float],
-):
+def add_profile_line_label(msp, element: dict, start: tuple[float, float], end: tuple[float, float], parameters: dict[str, float]):
     label = element.get("label")
     if not label:
         return
@@ -294,12 +323,10 @@ def add_profile_line_label(
 
 def build_named_lines(template: dict, parameters: dict[str, float]) -> dict[str, dict[str, tuple[float, float]]]:
     profile = template["profile"]
-
     if profile.get("type") != "connected_path":
         raise ValueError("Only profile.type='connected_path' is supported")
 
     lines = {}
-
     for element in profile["elements"]:
         if element["type"] != "line":
             raise ValueError(f"Unsupported profile element type: {element['type']}")
@@ -313,29 +340,20 @@ def build_named_lines(template: dict, parameters: dict[str, float]) -> dict[str,
     return lines
 
 
-def build_profile_path(
-    lines: dict[str, dict[str, tuple[float, float]]],
-    template: dict,
-) -> list[tuple[float, float, float]]:
+def build_profile_path(lines: dict[str, dict[str, tuple[float, float]]], template: dict) -> list[tuple[float, float, float]]:
     points: list[tuple[float, float, float]] = []
 
     for element in template["profile"]["elements"]:
         line = lines[element["name"]]
         start = line["start"]
         end = line["end"]
-
         add_point_unique(points, (start[0], start[1], 0))
         add_point_unique(points, (end[0], end[1], 0))
 
     return points
 
 
-def draw_profile(
-    msp,
-    template: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-    parameters: dict[str, float],
-):
+def draw_profile(msp, template: dict, lines: dict[str, dict[str, tuple[float, float]]], parameters: dict[str, float]):
     profile_width = get_template_default(
         template=template,
         name="profile_width",
@@ -356,14 +374,8 @@ def draw_profile(
         )
 
 
-def draw_parallel_dimension(
-    msp,
-    dim: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     param_name = dim["param"]
-
     if param_name not in parameters:
         raise ValueError(f"Missing dimension parameter: {param_name}")
 
@@ -374,7 +386,6 @@ def draw_parallel_dimension(
     line = lines[target_name]
     p1 = line["start"]
     p2 = line["end"]
-
     offset = resolve_value(dim.get("offset", 22), parameters)
     side = dim.get("side", "left")
 
@@ -387,7 +398,6 @@ def draw_parallel_dimension(
 
     d1 = offset_point(p1, normal, offset)
     d2 = offset_point(p2, normal, offset)
-
     attribs = {
         "layer": DIM_LAYER,
         "color": CAD_STYLES["dimensions"]["color"],
@@ -395,7 +405,6 @@ def draw_parallel_dimension(
     }
 
     msp.add_line(d1, d2, dxfattribs=attribs)
-
     profile_gap = CAD_STYLES["profile"]["width"] * 2
     msp.add_line(offset_point(p1, normal, profile_gap), d1, dxfattribs=attribs)
     msp.add_line(offset_point(p2, normal, profile_gap), d2, dxfattribs=attribs)
@@ -431,12 +440,7 @@ def rotate_counterclockwise(vector: tuple[float, float]) -> tuple[float, float]:
     return -y, x
 
 
-def draw_single_hook(
-    msp,
-    hook: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-    template: dict,
-):
+def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, tuple[float, float]]], template: dict):
     attach_to = hook["attach_to"]
     position = hook["position"]
 
@@ -446,13 +450,7 @@ def draw_single_hook(
     line = lines[attach_to]
     line_start = line["start"]
     line_end = line["end"]
-
-    width = get_template_default(
-        template=template,
-        name="profile_width",
-        fallback=CAD_STYLES["profile"]["width"],
-    )
-
+    width = get_template_default(template=template, name="profile_width", fallback=CAD_STYLES["profile"]["width"])
     length = float(hook["length"])
     angle = float(hook.get("angle", 90))
 
@@ -529,50 +527,31 @@ def draw_single_hook(
             side_direction=side_direction,
             position=position,
             hook=hook,
+            avoidance_lines=[(line_item["start"], line_item["end"]) for line_item in lines.values()],
         )
 
 
-def draw_hooks(
-    msp,
-    template: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-    parameters: dict[str, float],
-):
-    width = get_template_default(
-        template=template,
-        name="profile_width",
-        fallback=CAD_STYLES["profile"]["width"],
-    )
+def draw_hooks(msp, template: dict, lines: dict[str, dict[str, tuple[float, float]]], parameters: dict[str, float]):
+    width = get_template_default(template=template, name="profile_width", fallback=CAD_STYLES["profile"]["width"])
 
     for hook in template.get("hooks", []):
         hook_type = hook.get("type")
 
         if hook_type == "hook":
             draw_single_hook(msp=msp, hook=hook, lines=lines, template=template)
-
         elif hook_type == "line":
             start = resolve_point(hook["start"], parameters)
             end = resolve_point(hook["end"], parameters)
             add_profile_path(msp=msp, points=[(start[0], start[1], 0), (end[0], end[1], 0)], width=width)
-
         else:
             raise ValueError(f"Unknown hook type: {hook_type}")
 
 
-def add_triangle_marker(
-    msp,
-    tip: tuple[float, float],
-    line_direction: tuple[float, float],
-    side_direction: tuple[float, float],
-    height: float = 12,
-    depth: float = 10,
-):
+def add_triangle_marker(msp, tip: tuple[float, float], line_direction: tuple[float, float], side_direction: tuple[float, float], height: float = 12, depth: float = 10):
     dx, dy = normalize(line_direction)
     sx, sy = normalize(side_direction)
-
     base_center = (tip[0] + sx * depth, tip[1] + sy * depth)
     half_height = height / 2
-
     p1 = (base_center[0] - dx * half_height, base_center[1] - dy * half_height)
     p2 = tip
     p3 = (base_center[0] + dx * half_height, base_center[1] + dy * half_height)
@@ -587,15 +566,9 @@ def add_triangle_marker(
     )
 
 
-def draw_markers(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_markers(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for marker in template.get("markers", []):
         marker_type = marker.get("type")
-
         if marker_type not in ("triangle", "thickness_triangle"):
             raise ValueError(f"Unknown marker type: {marker_type}")
 
@@ -620,7 +593,6 @@ def draw_markers(
             position_value = resolve_value(position, parameters)
 
         point = (start[0] + line_vector[0] * position_value, start[1] + line_vector[1] * position_value)
-
         side = marker.get("side", "left")
         if side == "left":
             side_direction = get_left_normal(start, end)
@@ -631,26 +603,13 @@ def draw_markers(
 
         offset = resolve_value(marker.get("offset", 2), parameters)
         tip = offset_point(point=point, normal=side_direction, distance=offset)
-
         height = resolve_value(marker.get("height", 12), parameters)
         depth = resolve_value(marker.get("depth", 10), parameters)
 
-        add_triangle_marker(
-            msp=msp,
-            tip=tip,
-            line_direction=line_direction,
-            side_direction=side_direction,
-            height=height,
-            depth=depth,
-        )
+        add_triangle_marker(msp=msp, tip=tip, line_direction=line_direction, side_direction=side_direction, height=height, depth=depth)
 
 
-def draw_dimensions(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_dimensions(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for dim in template.get("dimensions", []):
         dim_type = dim.get("type")
 
@@ -660,12 +619,7 @@ def draw_dimensions(
             raise ValueError(f"Unknown dimension type: {dim_type}")
 
 
-def draw_angle_marks(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for mark in template.get("angle_marks", []):
         if not mark.get("enabled", False):
             continue
@@ -676,7 +630,6 @@ def draw_angle_marks(
 
         line_1_name = mark["line_1"]
         line_2_name = mark["line_2"]
-
         if line_1_name not in lines:
             raise ValueError(f"Angle line not found: {line_1_name}")
         if line_2_name not in lines:
@@ -684,13 +637,10 @@ def draw_angle_marks(
 
         line_1 = lines[line_1_name]
         line_2 = lines[line_2_name]
-
         center = line_1["end"]
         radius = resolve_value(mark.get("radius", 28), parameters)
-
         angle_1 = get_angle_degrees(center, line_1["start"])
         angle_2 = get_angle_degrees(center, line_2["end"])
-
         draw_angle_1 = angle_1
         draw_angle_2 = angle_2
 
@@ -706,7 +656,6 @@ def draw_angle_marks(
             "lineweight": CAD_STYLES["dimensions"]["lineweight"],
         }
         msp.add_arc(center=center, radius=radius, start_angle=draw_angle_1, end_angle=draw_angle_2, dxfattribs=attribs)
-
         angle_tick_size = resolve_value(mark.get("tick_size", 15), parameters)
         add_angle_tick(msp=msp, center=center, radius=radius, angle_degrees=draw_angle_1, size=angle_tick_size)
         add_angle_tick(msp=msp, center=center, radius=radius, angle_degrees=draw_angle_2, size=angle_tick_size)
