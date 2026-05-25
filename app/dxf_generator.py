@@ -199,6 +199,7 @@ def add_hook_label(
     text: str,
     base: tuple[float, float],
     hook_tip: tuple[float, float],
+    hook_direction: tuple[float, float],
     line_direction: tuple[float, float],
     side_direction: tuple[float, float],
     position: str,
@@ -210,8 +211,8 @@ def add_hook_label(
     if label_anchor == "hook_tip":
         label_forward_offset = float(hook.get("label_forward_offset", 0))
         label_position = (
-            hook_tip[0] + line_direction[0] * label_forward_offset + side_direction[0] * label_side_offset,
-            hook_tip[1] + line_direction[1] * label_forward_offset + side_direction[1] * label_side_offset,
+            hook_tip[0] + hook_direction[0] * label_side_offset + line_direction[0] * label_forward_offset,
+            hook_tip[1] + hook_direction[1] * label_side_offset + line_direction[1] * label_forward_offset,
         )
     elif label_anchor == "base":
         label_back_offset = float(hook.get("label_back_offset", 18))
@@ -517,11 +518,13 @@ def draw_single_hook(
 
     label = hook.get("label")
     if label:
+        hook_direction = normalize(get_vector(p2, p3))
         add_hook_label(
             msp=msp,
             text=label,
             base=base,
             hook_tip=p3,
+            hook_direction=hook_direction,
             line_direction=line_direction,
             side_direction=side_direction,
             position=position,
