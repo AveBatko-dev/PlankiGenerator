@@ -450,7 +450,7 @@ def add_hook_label(
     height = float(hook.get("label_height", CAD_STYLES["text"]["height"]))
     rotation = float(hook.get("label_rotation", 0))
 
-    if hook.get("label_auto_place", False):
+    if hook.get("label_auto_place", True):
         label_anchor = hook.get("label_anchor", "base")
         if label_anchor == "hook_tip":
             anchor = hook_tip
