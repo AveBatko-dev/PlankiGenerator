@@ -34,7 +34,11 @@
       "attach_to": "left_vertical",
       "position": "end",
       "length": 18,
-      "angle": 90
+      "angle": 90,
+      "label": "Z1",
+      "label_back_offset": -6,
+      "label_side_offset": 17,
+      "label_height": 8
     }
   ],
 
