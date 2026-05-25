@@ -16,8 +16,8 @@
     ]
   },
   "hooks": [
-    {"type": "hook", "name": "left_top_hook", "attach_to": "left_vertical", "position": "end", "length": 18, "angle": 90, "label": "Z1", "label_back_offset": -6, "label_side_offset": 17, "label_height": 8},
-    {"type": "hook", "name": "right_top_hook", "attach_to": "right_vertical", "position": "start", "length": 18, "angle": 90, "label": "Z2", "label_back_offset": -6, "label_side_offset": 30, "label_height": 8}
+    {"type": "hook", "name": "left_top_hook", "attach_to": "left_vertical", "position": "end", "length": 18, "angle": 90, "label": "Z1", "label_anchor": "hook_tip", "label_forward_offset": 0, "label_side_offset": 20, "label_height": 8},
+    {"type": "hook", "name": "right_top_hook", "attach_to": "right_vertical", "position": "start", "length": 18, "angle": 90, "label": "Z2", "label_anchor": "hook_tip", "label_forward_offset": 0, "label_side_offset": 20, "label_height": 8}
   ],
   "dimensions": [
     {"type": "parallel_to_line", "name": "dimension_A_left", "param": "A", "target": "left_vertical", "offset": 22, "side": "left", "text_rotation": 90},
