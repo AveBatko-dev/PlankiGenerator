@@ -1,0 +1,58 @@
+{
+  "code": "pl_8",
+  "display_code": "Пл. 8",
+  "name": "Планка пряма з двома завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "main_horizontal",
+        "start": [0, 0],
+        "end": ["A", 0]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "main_horizontal",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "main_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "main_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    }
+  ],
+
+  "angle_marks": []
+}

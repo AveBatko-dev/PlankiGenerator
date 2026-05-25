@@ -1,0 +1,160 @@
+{
+  "code": "pl_10",
+  "display_code": "Пл. 10",
+  "name": "Планка ламана з двома кутами та завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_horizontal",
+        "start": [0, 0],
+        "end": ["A", 0]
+      },
+      {
+        "type": "line",
+        "name": "left_slanted",
+        "start": ["A", 0],
+        "end": [
+          "A + B*cos(radians(180-K1))",
+          "B*sin(radians(180-K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_horizontal",
+        "start": [
+          "A + B*cos(radians(180-K1))",
+          "B*sin(radians(180-K1))"
+        ],
+        "end": [
+          "A + B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_slanted",
+        "start": [
+          "A + B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1))"
+        ],
+        "end": [
+          "A + B*cos(radians(180-K1)) + C + D*cos(radians(180-K2))",
+          "B*sin(radians(180-K1)) - D*sin(radians(180-K2))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_horizontal",
+        "start": [
+          "A + B*cos(radians(180-K1)) + C + D*cos(radians(180-K2))",
+          "B*sin(radians(180-K1)) - D*sin(radians(180-K2))"
+        ],
+        "end": [
+          "A + B*cos(radians(180-K1)) + C + D*cos(radians(180-K2)) + E",
+          "B*sin(radians(180-K1)) - D*sin(radians(180-K2))"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "left_horizontal",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "left_horizontal",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "left_slanted",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "right_slanted",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_E",
+      "param": "E",
+      "target": "right_horizontal",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": "auto"
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+      "line_1": "left_slanted",
+      "line_2": "top_horizontal",
+      "radius": 24,
+      "text_offset": 8,
+      "enabled": true
+    },
+    {
+      "type": "between_lines",
+      "name": "angle_K2",
+      "param": "K2",
+      "line_1": "top_horizontal",
+      "line_2": "right_slanted",
+      "radius": 24,
+      "text_offset": 8,
+      "enabled": true
+    }
+  ]
+}

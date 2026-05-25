@@ -1,0 +1,104 @@
+{
+  "code": "pl_4",
+  "display_code": "Пл. 4",
+  "name": "Планка ламана з двома завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "bottom_z2_line",
+        "start": [34, 22],
+        "end": [0, 0]
+      },
+      {
+        "type": "line",
+        "name": "lower_vertical",
+        "start": [0, 0],
+        "end": [0, "C"]
+      },
+      {
+        "type": "line",
+        "name": "middle_slanted",
+        "start": [0, "C"],
+        "end": [
+          "B*cos(radians(K1-90))",
+          "C + B*sin(radians(K1-90))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "upper_vertical",
+        "start": [
+          "B*cos(radians(K1-90))",
+          "C + B*sin(radians(K1-90))"
+        ],
+        "end": [
+          "B*cos(radians(K1-90))",
+          "C + B*sin(radians(K1-90)) + A"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "top_hook_z1",
+      "attach_to": "upper_vertical",
+      "position": "end",
+      "length": 18,
+      "angle": 90
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "lower_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "middle_slanted",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "upper_vertical",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": 90
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+      "line_1": "lower_vertical",
+      "line_2": "middle_slanted",
+      "radius": 28,
+      "text_offset": 8,
+      "enabled": true
+    }
+  ]
+}

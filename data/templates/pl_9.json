@@ -1,0 +1,88 @@
+{
+  "code": "pl_9",
+  "display_code": "Пл. 9",
+  "name": "Планка ступінчаста з двома завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_horizontal",
+        "start": [0, 0],
+        "end": ["C", 0]
+      },
+      {
+        "type": "line",
+        "name": "middle_vertical",
+        "start": ["C", 0],
+        "end": ["C", "B"]
+      },
+      {
+        "type": "line",
+        "name": "right_horizontal",
+        "start": ["C", "B"],
+        "end": ["C + A", "B"]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "left_horizontal",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "side": "right"
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "left_horizontal",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": "auto"
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "middle_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "right_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    }
+  ],
+
+  "angle_marks": []
+}
