@@ -91,6 +91,7 @@ def add_text(
         },
     ).set_placement(position)
 
+
 def add_hook_label(
     msp,
     text: str,
@@ -125,6 +126,54 @@ def add_hook_label(
     )
 
 
+def add_profile_line_label(msp, element: dict, start: tuple[float, float], end: tuple[float, float], parameters: dict[str, float]):
+    label = element.get("label")
+    if not label:
+        return
+
+    line_vector = get_vector(start, end)
+    line_direction = normalize(line_vector)
+
+    position = element.get("label_position", "middle")
+    if position == "start":
+        position_value = 0
+    elif position == "end":
+        position_value = 1
+    elif position == "middle":
+        position_value = 0.5
+    else:
+        position_value = resolve_value(position, parameters)
+
+    base = (
+        start[0] + line_vector[0] * position_value,
+        start[1] + line_vector[1] * position_value,
+    )
+
+    side = element.get("label_side", "left")
+    if side == "left":
+        side_direction = get_left_normal(start, end)
+    elif side == "right":
+        side_direction = get_right_normal(start, end)
+    else:
+        raise ValueError(f"Unknown profile line label side: {side}")
+
+    along_offset = resolve_value(element.get("label_along_offset", 0), parameters)
+    side_offset = resolve_value(element.get("label_side_offset", 12), parameters)
+
+    label_position = (
+        base[0] + line_direction[0] * along_offset + side_direction[0] * side_offset,
+        base[1] + line_direction[1] * along_offset + side_direction[1] * side_offset,
+    )
+
+    add_text(
+        msp=msp,
+        text=label,
+        position=label_position,
+        height=element.get("label_height", CAD_STYLES["text"]["height"]),
+        rotation=element.get("label_rotation", 0),
+    )
+
+
 def add_tick(
     msp,
     position: tuple[float, float],
@@ -134,9 +183,6 @@ def add_tick(
     x, y = position
 
     dx, dy = normalize(direction)
-
-    # Засечка должна быть повернута относительно самой размерной линии,
-    # а не всегда иметь фиксированный мировой угол 45 градусов.
     angle = math.radians(45)
 
     tick_dx = dx * math.cos(angle) - dy * math.sin(angle)
@@ -152,8 +198,8 @@ def add_tick(
             "color": CAD_STYLES["dimensions"]["color"],
             "lineweight": CAD_STYLES["dimensions"]["lineweight"],
         },
-
     )
+
 
 def add_angle_tick(
     msp,
@@ -169,14 +215,7 @@ def add_angle_tick(
         center[1] + math.sin(angle) * radius,
     )
 
-    # Локальное направление дуги в точке — касательная.
-    tangent = (
-        -math.sin(angle),
-        math.cos(angle),
-    )
-
-    # Засечка должна быть косой относительно дуги,
-    # как обычная засечка размера, а не радиальной.
+    tangent = (-math.sin(angle), math.cos(angle))
     tick_angle = math.radians(45)
 
     tx, ty = normalize(tangent)
@@ -187,14 +226,8 @@ def add_angle_tick(
     half = size / 2
 
     msp.add_line(
-        (
-            point[0] - tick_dx * half,
-            point[1] - tick_dy * half,
-        ),
-        (
-            point[0] + tick_dx * half,
-            point[1] + tick_dy * half,
-        ),
+        (point[0] - tick_dx * half, point[1] - tick_dy * half),
+        (point[0] + tick_dx * half, point[1] + tick_dy * half),
         dxfattribs={
             "layer": DIM_LAYER,
             "color": CAD_STYLES["dimensions"]["color"],
@@ -203,11 +236,7 @@ def add_angle_tick(
     )
 
 
-def add_profile_path(
-    msp,
-    points: list[tuple[float, float, float]],
-    width: float,
-):
+def add_profile_path(msp, points: list[tuple[float, float, float]], width: float):
     msp.add_lwpolyline(
         points,
         format="xyb",
@@ -219,10 +248,8 @@ def add_profile_path(
         },
     )
 
-def add_point_unique(
-    points: list[tuple[float, float, float]],
-    point: tuple[float, float, float],
-):
+
+def add_point_unique(points: list[tuple[float, float, float]], point: tuple[float, float, float]):
     if not points:
         points.append(point)
         return
@@ -236,10 +263,7 @@ def add_point_unique(
     points.append(point)
 
 
-def get_vector(
-    start: tuple[float, float],
-    end: tuple[float, float],
-) -> tuple[float, float]:
+def get_vector(start: tuple[float, float], end: tuple[float, float]) -> tuple[float, float]:
     return end[0] - start[0], end[1] - start[1]
 
 
@@ -253,45 +277,29 @@ def normalize(vector: tuple[float, float]) -> tuple[float, float]:
     return x / length, y / length
 
 
-def get_left_normal(
-    start: tuple[float, float],
-    end: tuple[float, float],
-) -> tuple[float, float]:
+def get_left_normal(start: tuple[float, float], end: tuple[float, float]) -> tuple[float, float]:
     dx, dy = normalize(get_vector(start, end))
     return -dy, dx
 
 
-def get_right_normal(
-    start: tuple[float, float],
-    end: tuple[float, float],
-) -> tuple[float, float]:
+def get_right_normal(start: tuple[float, float], end: tuple[float, float]) -> tuple[float, float]:
     dx, dy = normalize(get_vector(start, end))
     return dy, -dx
 
 
-def offset_point(
-    point: tuple[float, float],
-    normal: tuple[float, float],
-    distance: float,
-) -> tuple[float, float]:
+def offset_point(point: tuple[float, float], normal: tuple[float, float], distance: float) -> tuple[float, float]:
     return (
         point[0] + normal[0] * distance,
         point[1] + normal[1] * distance,
     )
 
 
-def get_angle_degrees(
-    start: tuple[float, float],
-    end: tuple[float, float],
-) -> float:
+def get_angle_degrees(start: tuple[float, float], end: tuple[float, float]) -> float:
     dx, dy = get_vector(start, end)
     return math.degrees(math.atan2(dy, dx))
 
 
-def build_named_lines(
-    template: dict,
-    parameters: dict[str, float],
-) -> dict[str, dict[str, tuple[float, float]]]:
+def build_named_lines(template: dict, parameters: dict[str, float]) -> dict[str, dict[str, tuple[float, float]]]:
     profile = template["profile"]
 
     if profile.get("type") != "connected_path":
@@ -307,18 +315,12 @@ def build_named_lines(
         start = resolve_point(element["start"], parameters)
         end = resolve_point(element["end"], parameters)
 
-        lines[name] = {
-            "start": start,
-            "end": end,
-        }
+        lines[name] = {"start": start, "end": end}
 
     return lines
 
 
-def build_profile_path(
-    lines: dict[str, dict[str, tuple[float, float]]],
-    template: dict,
-) -> list[tuple[float, float, float]]:
+def build_profile_path(lines: dict[str, dict[str, tuple[float, float]]], template: dict) -> list[tuple[float, float, float]]:
     profile = template["profile"]
     points: list[tuple[float, float, float]] = []
 
@@ -335,11 +337,7 @@ def build_profile_path(
     return points
 
 
-def draw_profile(
-    msp,
-    template: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_profile(msp, template: dict, lines: dict[str, dict[str, tuple[float, float]]], parameters: dict[str, float]):
     profile_width = get_template_default(
         template=template,
         name="profile_width",
@@ -347,20 +345,20 @@ def draw_profile(
     )
 
     points = build_profile_path(lines, template)
+    add_profile_path(msp=msp, points=points, width=profile_width)
 
-    add_profile_path(
-        msp=msp,
-        points=points,
-        width=profile_width,
-    )
+    for element in template["profile"]["elements"]:
+        line = lines[element["name"]]
+        add_profile_line_label(
+            msp=msp,
+            element=element,
+            start=line["start"],
+            end=line["end"],
+            parameters=parameters,
+        )
 
 
-def draw_parallel_dimension(
-    msp,
-    dim: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     param_name = dim["param"]
 
     if param_name not in parameters:
@@ -403,35 +401,15 @@ def draw_parallel_dimension(
     e1 = offset_point(p1, normal, profile_gap)
     e2 = offset_point(p2, normal, profile_gap)
 
-    msp.add_line(
-        e1,
-        d1,
-        dxfattribs={
-            "layer": DIM_LAYER,
-            "color": CAD_STYLES["dimensions"]["color"],
-            "lineweight": CAD_STYLES["dimensions"]["lineweight"],
-        },
-    )
-
-    msp.add_line(
-        e2,
-        d2,
-        dxfattribs={
-            "layer": DIM_LAYER,
-            "color": CAD_STYLES["dimensions"]["color"],
-            "lineweight": CAD_STYLES["dimensions"]["lineweight"],
-        },
-    )
+    msp.add_line(e1, d1, dxfattribs={"layer": DIM_LAYER, "color": CAD_STYLES["dimensions"]["color"], "lineweight": CAD_STYLES["dimensions"]["lineweight"]})
+    msp.add_line(e2, d2, dxfattribs={"layer": DIM_LAYER, "color": CAD_STYLES["dimensions"]["color"], "lineweight": CAD_STYLES["dimensions"]["lineweight"]})
 
     dimension_direction = get_vector(d1, d2)
 
     add_tick(msp, d1, direction=dimension_direction, size=15)
     add_tick(msp, d2, direction=dimension_direction, size=15)
 
-    mid = (
-        (d1[0] + d2[0]) / 2,
-        (d1[1] + d2[1]) / 2,
-    )
+    mid = ((d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2)
 
     text_shift = 12
     text_position = offset_point(mid, normal, text_shift)
@@ -450,10 +428,6 @@ def draw_parallel_dimension(
     )
 
 
-# -----------------------------
-# Крючки
-# -----------------------------
-
 def rotate_clockwise(vector: tuple[float, float]) -> tuple[float, float]:
     x, y = vector
     return y, -x
@@ -464,12 +438,7 @@ def rotate_counterclockwise(vector: tuple[float, float]) -> tuple[float, float]:
     return -y, x
 
 
-def draw_single_hook(
-    msp,
-    hook: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-    template: dict,
-):
+def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, tuple[float, float]]], template: dict):
     attach_to = hook["attach_to"]
     position = hook["position"]
 
@@ -480,11 +449,7 @@ def draw_single_hook(
     line_start = line["start"]
     line_end = line["end"]
 
-    width = get_template_default(
-        template=template,
-        name="profile_width",
-        fallback=CAD_STYLES["profile"]["width"],
-    )
+    width = get_template_default(template=template, name="profile_width", fallback=CAD_STYLES["profile"]["width"])
 
     length = float(hook["length"])
     angle = float(hook.get("angle", 90))
@@ -500,7 +465,6 @@ def draw_single_hook(
 
     if position == "start":
         base = line_start
-
         side = hook.get("side", "right")
 
         if side == "right":
@@ -512,40 +476,17 @@ def draw_single_hook(
         else:
             raise ValueError(f"Unknown hook side: {side}")
 
-        p0 = (
-            base[0] + line_direction[0] * join_overlap,
-            base[1] + line_direction[1] * join_overlap,
-        )
-
+        p0 = (base[0] + line_direction[0] * join_overlap, base[1] + line_direction[1] * join_overlap)
         p1 = base
+        p2 = (base[0] + side_direction[0] * radius, base[1] + side_direction[1] * radius)
+        p3 = (p2[0] + line_direction[0] * length, p2[1] + line_direction[1] * length)
 
-        p2 = (
-            base[0] + side_direction[0] * radius,
-            base[1] + side_direction[1] * radius,
-        )
-
-        p3 = (
-            p2[0] + line_direction[0] * length,
-            p2[1] + line_direction[1] * length,
-        )
-
-        points = [
-            (p0[0], p0[1], 0),
-            (p1[0], p1[1], bulge),
-            (p2[0], p2[1], 0),
-            (p3[0], p3[1], 0),
-        ]
-
-        inner_patch_start = (
-            p2[0] - line_direction[0] * inner_join_overlap,
-            p2[1] - line_direction[1] * inner_join_overlap,
-        )
-
+        points = [(p0[0], p0[1], 0), (p1[0], p1[1], bulge), (p2[0], p2[1], 0), (p3[0], p3[1], 0)]
+        inner_patch_start = (p2[0] - line_direction[0] * inner_join_overlap, p2[1] - line_direction[1] * inner_join_overlap)
         inner_patch_end = p3
 
     elif position == "end":
         base = line_end
-
         side = hook.get("side", "right")
 
         if side == "right":
@@ -558,167 +499,62 @@ def draw_single_hook(
             raise ValueError(f"Unknown hook side: {side}")
 
         back_direction = (-line_direction[0], -line_direction[1])
-
-        p0 = (
-            base[0] + back_direction[0] * join_overlap,
-            base[1] + back_direction[1] * join_overlap,
-        )
-
+        p0 = (base[0] + back_direction[0] * join_overlap, base[1] + back_direction[1] * join_overlap)
         p1 = base
+        p2 = (base[0] + side_direction[0] * radius, base[1] + side_direction[1] * radius)
+        p3 = (p2[0] + back_direction[0] * length, p2[1] + back_direction[1] * length)
 
-        p2 = (
-            base[0] + side_direction[0] * radius,
-            base[1] + side_direction[1] * radius,
-        )
-
-        p3 = (
-            p2[0] + back_direction[0] * length,
-            p2[1] + back_direction[1] * length,
-        )
-
-        points = [
-            (p0[0], p0[1], 0),
-            (p1[0], p1[1], bulge),
-            (p2[0], p2[1], 0),
-            (p3[0], p3[1], 0),
-        ]
-
-        inner_patch_start = (
-            p2[0] - back_direction[0] * inner_join_overlap,
-            p2[1] - back_direction[1] * inner_join_overlap,
-        )
-
+        points = [(p0[0], p0[1], 0), (p1[0], p1[1], bulge), (p2[0], p2[1], 0), (p3[0], p3[1], 0)]
+        inner_patch_start = (p2[0] - back_direction[0] * inner_join_overlap, p2[1] - back_direction[1] * inner_join_overlap)
         inner_patch_end = p3
 
     else:
         raise ValueError(f"Unknown hook position: {position}")
 
-    add_profile_path(
-        msp=msp,
-        points=points,
-        width=width,
-    )
-
-    add_profile_path(
-        msp=msp,
-        points=[
-            (inner_patch_start[0], inner_patch_start[1], 0),
-            (inner_patch_end[0], inner_patch_end[1], 0),
-        ],
-        width=width,
-    )
+    add_profile_path(msp=msp, points=points, width=width)
+    add_profile_path(msp=msp, points=[(inner_patch_start[0], inner_patch_start[1], 0), (inner_patch_end[0], inner_patch_end[1], 0)], width=width)
 
     label = hook.get("label")
-
     if label:
-        add_hook_label(
-            msp=msp,
-            text=label,
-            base=base,
-            line_direction=line_direction,
-            side_direction=side_direction,
-            position=position,
-            hook=hook,
-        )
+        add_hook_label(msp=msp, text=label, base=base, line_direction=line_direction, side_direction=side_direction, position=position, hook=hook)
 
-def draw_hooks(
-    msp,
-    template: dict,
-    lines: dict[str, dict[str, tuple[float, float]]],
-    parameters: dict[str, float],
-):
-    width = get_template_default(
-        template=template,
-        name="profile_width",
-        fallback=CAD_STYLES["profile"]["width"],
-    )
+
+def draw_hooks(msp, template: dict, lines: dict[str, dict[str, tuple[float, float]]], parameters: dict[str, float]):
+    width = get_template_default(template=template, name="profile_width", fallback=CAD_STYLES["profile"]["width"])
 
     for hook in template.get("hooks", []):
         hook_type = hook.get("type")
 
         if hook_type == "hook":
-            draw_single_hook(
-                msp=msp,
-                hook=hook,
-                lines=lines,
-                template=template,
-            )
+            draw_single_hook(msp=msp, hook=hook, lines=lines, template=template)
 
         elif hook_type == "line":
             start = resolve_point(hook["start"], parameters)
             end = resolve_point(hook["end"], parameters)
-
-            add_profile_path(
-                msp=msp,
-                points=[
-                    (start[0], start[1], 0),
-                    (end[0], end[1], 0),
-                ],
-                width=width,
-            )
+            add_profile_path(msp=msp, points=[(start[0], start[1], 0), (end[0], end[1], 0)], width=width)
 
         else:
             raise ValueError(f"Unknown hook type: {hook_type}")
 
 
-# -----------------------------
-# Маркеры толщины / служебные маркеры
-# -----------------------------
-
-def add_triangle_marker(
-    msp,
-    tip: tuple[float, float],
-    line_direction: tuple[float, float],
-    side_direction: tuple[float, float],
-    height: float = 12,
-    depth: float = 10,
-):
-    """
-    Рисует пустой треугольник возле линии.
-
-    tip — вершина треугольника, которая касается линии.
-    line_direction — направление линии.
-    side_direction — сторона, куда уходит тело треугольника.
-    """
-
+def add_triangle_marker(msp, tip: tuple[float, float], line_direction: tuple[float, float], side_direction: tuple[float, float], height: float = 12, depth: float = 10):
     dx, dy = normalize(line_direction)
     sx, sy = normalize(side_direction)
 
-    base_center = (
-        tip[0] + sx * depth,
-        tip[1] + sy * depth,
-    )
-
+    base_center = (tip[0] + sx * depth, tip[1] + sy * depth)
     half_height = height / 2
 
-    p1 = (
-        base_center[0] - dx * half_height,
-        base_center[1] - dy * half_height,
-    )
-
+    p1 = (base_center[0] - dx * half_height, base_center[1] - dy * half_height)
     p2 = tip
-
-    p3 = (
-        base_center[0] + dx * half_height,
-        base_center[1] + dy * half_height,
-    )
+    p3 = (base_center[0] + dx * half_height, base_center[1] + dy * half_height)
 
     msp.add_lwpolyline(
         [p1, p2, p3, p1],
-        dxfattribs={
-            "layer": DIM_LAYER,
-            "color": CAD_STYLES["dimensions"]["color"],
-            "lineweight": CAD_STYLES["dimensions"]["lineweight"],
-        },
+        dxfattribs={"layer": DIM_LAYER, "color": CAD_STYLES["dimensions"]["color"], "lineweight": CAD_STYLES["dimensions"]["lineweight"]},
     )
 
 
-def draw_markers(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_markers(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for marker in template.get("markers", []):
         marker_type = marker.get("type")
 
@@ -738,7 +574,6 @@ def draw_markers(
         line_direction = normalize(line_vector)
 
         position = marker.get("position", 0.5)
-
         if position == "middle":
             position_value = 0.5
         elif position == "start":
@@ -748,13 +583,9 @@ def draw_markers(
         else:
             position_value = resolve_value(position, parameters)
 
-        point = (
-            start[0] + line_vector[0] * position_value,
-            start[1] + line_vector[1] * position_value,
-        )
+        point = (start[0] + line_vector[0] * position_value, start[1] + line_vector[1] * position_value)
 
         side = marker.get("side", "left")
-
         if side == "left":
             side_direction = get_left_normal(start, end)
         elif side == "right":
@@ -763,52 +594,25 @@ def draw_markers(
             raise ValueError(f"Unknown marker side: {side}")
 
         offset = resolve_value(marker.get("offset", 2), parameters)
-
-        tip = offset_point(
-            point=point,
-            normal=side_direction,
-            distance=offset,
-        )
+        tip = offset_point(point=point, normal=side_direction, distance=offset)
 
         height = resolve_value(marker.get("height", 12), parameters)
         depth = resolve_value(marker.get("depth", 10), parameters)
 
-        add_triangle_marker(
-            msp=msp,
-            tip=tip,
-            line_direction=line_direction,
-            side_direction=side_direction,
-            height=height,
-            depth=depth,
-        )
+        add_triangle_marker(msp=msp, tip=tip, line_direction=line_direction, side_direction=side_direction, height=height, depth=depth)
 
 
-def draw_dimensions(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_dimensions(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for dim in template.get("dimensions", []):
         dim_type = dim.get("type")
 
         if dim_type == "parallel_to_line":
-            draw_parallel_dimension(
-                msp=msp,
-                dim=dim,
-                parameters=parameters,
-                lines=lines,
-            )
+            draw_parallel_dimension(msp=msp, dim=dim, parameters=parameters, lines=lines)
         else:
             raise ValueError(f"Unknown dimension type: {dim_type}")
 
 
-def draw_angle_marks(
-    msp,
-    template: dict,
-    parameters: dict[str, float],
-    lines: dict[str, dict[str, tuple[float, float]]],
-):
+def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, tuple[float, float]]]):
     for mark in template.get("angle_marks", []):
         if not mark.get("enabled", False):
             continue
@@ -823,7 +627,6 @@ def draw_angle_marks(
 
         if line_1_name not in lines:
             raise ValueError(f"Angle line not found: {line_1_name}")
-
         if line_2_name not in lines:
             raise ValueError(f"Angle line not found: {line_2_name}")
 
@@ -831,7 +634,6 @@ def draw_angle_marks(
         line_2 = lines[line_2_name]
 
         center = line_1["end"]
-
         radius = resolve_value(mark.get("radius", 28), parameters)
 
         angle_1 = get_angle_degrees(center, line_1["start"])
@@ -851,40 +653,19 @@ def draw_angle_marks(
             radius=radius,
             start_angle=draw_angle_1,
             end_angle=draw_angle_2,
-            dxfattribs={
-                "layer": DIM_LAYER,
-                "color": CAD_STYLES["dimensions"]["color"],
-                "lineweight": CAD_STYLES["dimensions"]["lineweight"],
-            },
+            dxfattribs={"layer": DIM_LAYER, "color": CAD_STYLES["dimensions"]["color"], "lineweight": CAD_STYLES["dimensions"]["lineweight"]},
         )
 
         angle_tick_size = resolve_value(mark.get("tick_size", 15), parameters)
 
-        add_angle_tick(
-            msp=msp,
-            center=center,
-            radius=radius,
-            angle_degrees=draw_angle_1,
-            size=angle_tick_size,
-        )
-
-        add_angle_tick(
-            msp=msp,
-            center=center,
-            radius=radius,
-            angle_degrees=draw_angle_2,
-            size=angle_tick_size,
-        )
+        add_angle_tick(msp=msp, center=center, radius=radius, angle_degrees=draw_angle_1, size=angle_tick_size)
+        add_angle_tick(msp=msp, center=center, radius=radius, angle_degrees=draw_angle_2, size=angle_tick_size)
 
         mid_angle_degrees = (draw_angle_1 + draw_angle_2) / 2
         mid_angle = math.radians(mid_angle_degrees)
-
         text_radius = radius + resolve_value(mark.get("text_offset", 8), parameters)
 
-        text_position = (
-            center[0] + math.cos(mid_angle) * text_radius,
-            center[1] + math.sin(mid_angle) * text_radius,
-        )
+        text_position = (center[0] + math.cos(mid_angle) * text_radius, center[1] + math.sin(mid_angle) * text_radius)
 
         add_text(
             msp=msp,
@@ -894,48 +675,18 @@ def draw_angle_marks(
             rotation=mark.get("text_rotation", 0),
         )
 
+
 def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]) -> None:
     doc = setup_document()
     msp = doc.modelspace()
 
-    lines = build_named_lines(
-        template=template,
-        parameters=parameters,
-    )
+    lines = build_named_lines(template=template, parameters=parameters)
 
-    draw_profile(
-        msp=msp,
-        template=template,
-        lines=lines,
-    )
-
-    draw_hooks(
-        msp=msp,
-        template=template,
-        lines=lines,
-        parameters=parameters,
-    )
-
-    draw_dimensions(
-        msp=msp,
-        template=template,
-        parameters=parameters,
-        lines=lines,
-    )
-
-    draw_markers(
-        msp=msp,
-        template=template,
-        parameters=parameters,
-        lines=lines,
-    )
-
-    draw_angle_marks(
-        msp=msp,
-        template=template,
-        parameters=parameters,
-        lines=lines,
-    )
+    draw_profile(msp=msp, template=template, lines=lines, parameters=parameters)
+    draw_hooks(msp=msp, template=template, lines=lines, parameters=parameters)
+    draw_dimensions(msp=msp, template=template, parameters=parameters, lines=lines)
+    draw_markers(msp=msp, template=template, parameters=parameters, lines=lines)
+    draw_angle_marks(msp=msp, template=template, parameters=parameters, lines=lines)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.saveas(output_path)
