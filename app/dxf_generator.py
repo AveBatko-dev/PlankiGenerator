@@ -433,7 +433,7 @@ def draw_parallel_dimension(
         (d1[1] + d2[1]) / 2,
     )
 
-    text_shift = 8
+    text_shift = 12
     text_position = offset_point(mid, normal, text_shift)
 
     if dim.get("text_rotation") == "auto":
@@ -762,7 +762,7 @@ def draw_markers(
         else:
             raise ValueError(f"Unknown marker side: {side}")
 
-        offset = resolve_value(marker.get("offset", 0), parameters)
+        offset = resolve_value(marker.get("offset", 2), parameters)
 
         tip = offset_point(
             point=point,
