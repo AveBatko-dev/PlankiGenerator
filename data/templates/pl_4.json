@@ -10,102 +10,29 @@
   "profile": {
     "type": "connected_path",
     "elements": [
-      {
-        "type": "line",
-        "name": "bottom_z2_line",
-        "start": [34, 22],
-        "end": [0, 0],
-        "label": "Z2",
-        "label_position": 0.5,
-        "label_side": "right",
-        "label_side_offset": 12,
-        "label_height": 8
-      },
-      {
-        "type": "line",
-        "name": "lower_vertical",
-        "start": [0, 0],
-        "end": [0, "C"]
-      },
-      {
-        "type": "line",
-        "name": "middle_slanted",
-        "start": [0, "C"],
-        "end": ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90))"]
-      },
-      {
-        "type": "line",
-        "name": "upper_vertical",
-        "start": ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90))"],
-        "end": ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90)) + A"]
-      }
+      {"type": "line", "name": "bottom_z2_line", "start": [34, 22], "end": [0, 0], "label": "Z2", "label_position": 0.5, "label_side": "right",
+        "label_side_offset": 12, "label_height": 8},
+      {"type": "line", "name": "lower_vertical", "start": [0, 0], "end": [0, "C"]},
+      {"type": "line", "name": "middle_slanted", "start": [0, "C"], "end": ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90))"]},
+      {"type": "line", "name": "upper_vertical", "start": ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90))"], "end":
+      ["B*cos(radians(K1-90))", "C + B*sin(radians(K1-90)) + A"]}
     ]
   },
   "hooks": [
-    {
-      "type": "hook",
-      "name": "top_hook_z1",
-      "attach_to": "upper_vertical",
-      "position": "end",
-      "length": 18,
-      "angle": 90,
-      "label": "Z1",
-      "label_back_offset": -6,
-      "label_side_offset": 17,
-      "label_height": 8
-    }
+    {"type": "hook", "name": "top_hook_z1", "attach_to": "upper_vertical", "position": "end", 
+      "length": 18, "angle": 90, "label": "Z1", "label_anchor": "base", "label_min_clearance": 8, "label_height": 8}
   ],
   "dimensions": [
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_C",
-      "param": "C",
-      "target": "lower_vertical",
-      "offset": 22,
-      "side": "left",
-      "text_rotation": 90
-    },
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_B",
-      "param": "B",
-      "target": "middle_slanted",
-      "offset": 22,
-      "side": "left",
-      "text_rotation": "auto"
-    },
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_A",
-      "param": "A",
-      "target": "upper_vertical",
-      "offset": 22,
-      "side": "right",
-      "text_rotation": 90
-    }
+    {"type": "parallel_to_line", "name": "dimension_C", "param": "C", "target": "lower_vertical", "offset": 22, "side": "left", "text_rotation": 90},
+    {"type": "parallel_to_line", "name": "dimension_B", "param": "B", "target": "middle_slanted", "offset": 22, "side": "left", "text_rotation": "auto"},
+    {"type": "parallel_to_line", "name": "dimension_A", "param": "A", "target": "upper_vertical", "offset": 22, "side": "right", "text_rotation": 90}
   ],
   "markers": [
-    {
-      "type": "thickness_triangle",
-      "name": "left_thickness_marker",
-      "target": "lower_vertical",
-      "position": 0.5,
-      "side": "left",
-      "height": 12,
-      "depth": 10,
-      "offset": 2
-    }
+    {"type": "thickness_triangle", "name": "left_thickness_marker", "target": "lower_vertical", "position": 0.5, "side": "left", "height": 12, "depth": 10,
+      "offset": 2}
   ],
   "angle_marks": [
-    {
-      "type": "between_lines",
-      "name": "angle_K1",
-      "param": "K1",
-      "line_1": "lower_vertical",
-      "line_2": "middle_slanted",
-      "radius": 28,
-      "text_offset": 8,
-      "enabled": true
-    }
+    {"type": "between_lines", "name": "angle_K1", "param": "K1", "line_1": "lower_vertical", "line_2": "middle_slanted", "radius": 28, "text_offset": 8,
+      "enabled": true}
   ]
 }
