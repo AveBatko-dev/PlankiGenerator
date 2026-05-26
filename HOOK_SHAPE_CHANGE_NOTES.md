@@ -1,1 +1,0 @@
-Patch instructions for converting hook geometry from quarter-arc hooks to 180-degree hook shape with configurable gap and tail_length.
