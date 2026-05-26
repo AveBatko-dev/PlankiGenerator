@@ -16,16 +16,22 @@
     ]
   },
   "hooks": [
-    {"type": "hook", "name": "left_top_hook", "attach_to": "left_vertical", "position": "end", "length": 18, "angle": 90, "label": "Z1", "label_anchor": "base", "label_auto_place": true, "label_min_clearance": 8, "label_height": 8},
-    {"type": "hook", "name": "right_top_hook", "attach_to": "right_vertical", "position": "start", "length": 18, "angle": 90, "label": "Z2", "label_anchor": "base", "label_auto_place": true, "label_min_clearance": 8, "label_height": 8}
+    {"type": "hook", "name": "left_top_hook", "attach_to": "left_vertical", "position": "end",
+      "length": 18, "angle": 90, "label": "Z1", "label_anchor": "base", "label_auto_place": true, "label_min_clearance": 8, "label_height": 8},
+    {"type": "hook", "name": "right_top_hook", "attach_to": "right_vertical", "position": "start",
+      "length": 18, "angle": 90, "label": "Z2", "label_anchor": "base", "label_auto_place": true, "label_min_clearance": 8, "label_height": 8}
   ],
   "dimensions": [
-    {"type": "parallel_to_line", "name": "dimension_A_left", "param": "A", "target": "left_vertical", "offset": 22, "side": "left", "text_rotation": 90},
-    {"type": "parallel_to_line", "name": "dimension_A_right", "param": "A", "target": "right_vertical", "offset": 22, "side": "left", "text_rotation": 90},
-    {"type": "parallel_to_line", "name": "dimension_B", "param": "B", "target": "bottom_horizontal", "offset": 22, "side": "right", "text_rotation": 0}
+    {"type": "parallel_to_line", "name": "dimension_A_left", "param": "A", "target": "left_vertical",
+      "offset": 22, "side": "left", "text_rotation": 90},
+    {"type": "parallel_to_line", "name": "dimension_A_right", "param": "A", "target": "right_vertical",
+      "offset": 22, "side": "left", "text_rotation": 90},
+    {"type": "parallel_to_line", "name": "dimension_B", "param": "B", "target": "bottom_horizontal",
+      "offset": 22, "side": "right", "text_rotation": 0}
   ],
   "markers": [
-    {"type": "thickness_triangle", "name": "left_thickness_marker", "target": "left_vertical", "position": 0.5, "side": "left", "height": 12, "depth": 10, "offset": 2}
+    {"type": "thickness_triangle", "name": "left_thickness_marker", "target": "left_vertical",
+      "position": 0.5, "side": "left", "height": 12, "depth": 10, "offset": 2}
   ],
   "angle_marks": []
 }
