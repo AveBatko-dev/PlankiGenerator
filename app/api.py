@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
 from app.dwg_converter import convert_dxf_to_dwg
-from app.dxf_generator import generate_dxf
+from app.dxf_generator_final import generate_dxf
 from app.file_storage import create_output_paths
 from app.models import GenerateDrawingRequest, GenerateDrawingResponse
 from app.templates import load_template
@@ -34,7 +34,7 @@ def generate_drawing(request: GenerateDrawingRequest):
 
         return GenerateDrawingResponse(
             template_code=request.template_code,
-            dxf_path=str(dxf_path),
+            dxf_path=str(dxf_path) if dxf_path else None,
             dwg_path=str(dwg_path) if dwg_created else None,
             success=True,
             message="DXF created. DWG created."
