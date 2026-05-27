@@ -20,8 +20,7 @@ from app.dxf_generator import (
 )
 
 
-MAIN_PROFILE_WIDTH_FACTOR = 1 / 3
-HOOK_WIDTH_FACTOR = 1.0
+MAIN_PROFILE_WIDTH_FACTOR = 0.5
 HOOK_SPAN_FACTOR = 0.5
 DIMENSION_HOOK_CLEARANCE_FACTOR = 4 / 3
 DIMENSION_LINEWEIGHT = 60
@@ -32,7 +31,7 @@ def get_main_profile_width(template: dict) -> float:
 
 
 def get_hook_width(template: dict) -> float:
-    return base.get_profile_width(template=template) * HOOK_WIDTH_FACTOR
+    return get_main_profile_width(template=template)
 
 
 def get_dimension_attribs() -> dict[str, Any]:
