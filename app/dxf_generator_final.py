@@ -20,10 +20,11 @@ from app.dxf_generator import (
 )
 
 
-MAIN_PROFILE_WIDTH_FACTOR = 0.75
+MAIN_PROFILE_WIDTH_FACTOR = 0.5
 HOOK_WIDTH_FACTOR = 0.5
+HOOK_SPAN_FACTOR = 0.5
 DIMENSION_HOOK_CLEARANCE_FACTOR = 4 / 3
-DIMENSION_LINEWEIGHT = 30
+DIMENSION_LINEWEIGHT = 40
 
 
 def get_main_profile_width(template: dict) -> float:
@@ -107,7 +108,7 @@ def get_single_hook_geometry(hook: dict, lines: dict[str, dict[str, Point]], tem
         raise ValueError("Only 90 degree hooks are supported for now")
 
     line_direction = normalize(get_vector(line_start, line_end))
-    hook_gap = float(hook.get("gap", length))
+    hook_gap = float(hook.get("gap", length)) * HOOK_SPAN_FACTOR
     tail_length = float(hook.get("tail_length", length))
     join_overlap = width * 1.6
     inner_join_overlap = width * 0.28
