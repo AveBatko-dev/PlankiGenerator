@@ -114,7 +114,7 @@ def get_dimension_hook_data(
 
     target_name = dim["target"]
     profile_width = base.get_profile_width(template=template)
-    hook_line_clearance = resolve_value(dim.get("hook_line_clearance", max(4, profile_width * 2)), parameters)
+    hook_line_clearance = resolve_value(dim.get("hook_line_clearance", max(1, profile_width * 0.5)), parameters)
     start_line_extend = 0.0
     end_line_extend = 0.0
 
