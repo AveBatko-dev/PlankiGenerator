@@ -8,7 +8,6 @@ from app.dxf_generator import (
     Point,
     Segment,
     add_text,
-    add_tick,
     fmt,
     get_angle_degrees,
     get_marker_segments,
@@ -19,6 +18,43 @@ from app.dxf_generator import (
     resolve_point,
     resolve_value,
 )
+
+
+MAIN_PROFILE_WIDTH_FACTOR = 0.75
+HOOK_WIDTH_FACTOR = 0.5
+DIMENSION_HOOK_CLEARANCE_FACTOR = 4 / 3
+DIMENSION_LINEWEIGHT = 30
+
+
+def get_main_profile_width(template: dict) -> float:
+    return base.get_profile_width(template=template) * MAIN_PROFILE_WIDTH_FACTOR
+
+
+def get_hook_width(template: dict) -> float:
+    return base.get_profile_width(template=template) * HOOK_WIDTH_FACTOR
+
+
+def get_dimension_attribs() -> dict[str, Any]:
+    return {
+        "layer": CAD_STYLES["dimensions"]["layer"],
+        "color": CAD_STYLES["dimensions"]["color"],
+        "lineweight": DIMENSION_LINEWEIGHT,
+    }
+
+
+def add_scaled_tick(msp, position: Point, direction: Point, size: float = 15):
+    start, end = get_tick_segment(position=position, direction=direction, size=size)
+    msp.add_line(start, end, dxfattribs=get_dimension_attribs())
+
+
+def draw_profile(msp, template: dict, lines: dict[str, dict[str, Point]], parameters: dict[str, float]):
+    profile_width = get_main_profile_width(template=template)
+    points = base.build_profile_path(lines, template)
+    base.add_rounded_profile_path(msp=msp, points=points, width=profile_width)
+
+    for element in template["profile"]["elements"]:
+        line = lines[element["name"]]
+        base.add_profile_line_label(msp=msp, element=element, start=line["start"], end=line["end"], parameters=parameters)
 
 
 def rotate_vector(vector: Point, angle_radians: float) -> Point:
@@ -53,8 +89,110 @@ def get_actual_hook_arc_points(geometry: dict[str, Any], steps: int = 24) -> lis
     return points
 
 
+def get_single_hook_geometry(hook: dict, lines: dict[str, dict[str, Point]], template: dict) -> dict[str, Any]:
+    attach_to = hook["attach_to"]
+    position = hook["position"]
+
+    if attach_to not in lines:
+        raise ValueError(f"Hook target line not found: {attach_to}")
+
+    line = lines[attach_to]
+    line_start = line["start"]
+    line_end = line["end"]
+    width = get_hook_width(template=template)
+    length = float(hook["length"])
+    angle = float(hook.get("angle", 90))
+
+    if angle != 90:
+        raise ValueError("Only 90 degree hooks are supported for now")
+
+    line_direction = normalize(get_vector(line_start, line_end))
+    hook_gap = float(hook.get("gap", length))
+    tail_length = float(hook.get("tail_length", length))
+    join_overlap = width * 1.6
+    inner_join_overlap = width * 0.28
+    arc_steps = int(hook.get("arc_obstacle_steps", 16))
+
+    if position == "start":
+        base_point = line_start
+        side = hook.get("side", "right")
+
+        if side == "right":
+            side_direction = base.rotate_clockwise(line_direction)
+            bulge = 1
+        elif side == "left":
+            side_direction = base.rotate_counterclockwise(line_direction)
+            bulge = -1
+        else:
+            raise ValueError(f"Unknown hook side: {side}")
+
+        p0 = (base_point[0] + line_direction[0] * join_overlap, base_point[1] + line_direction[1] * join_overlap)
+        p1 = base_point
+        p2 = (base_point[0] + side_direction[0] * hook_gap, base_point[1] + side_direction[1] * hook_gap)
+        p3 = (p2[0] + line_direction[0] * tail_length, p2[1] + line_direction[1] * tail_length)
+        inner_patch_start = (p2[0] - line_direction[0] * inner_join_overlap, p2[1] - line_direction[1] * inner_join_overlap)
+        arc_side_direction = line_direction
+
+    elif position == "end":
+        base_point = line_end
+        side = hook.get("side", "right")
+
+        if side == "right":
+            side_direction = base.rotate_clockwise(line_direction)
+            bulge = -1
+        elif side == "left":
+            side_direction = base.rotate_counterclockwise(line_direction)
+            bulge = 1
+        else:
+            raise ValueError(f"Unknown hook side: {side}")
+
+        back_direction = (-line_direction[0], -line_direction[1])
+        p0 = (base_point[0] + back_direction[0] * join_overlap, base_point[1] + back_direction[1] * join_overlap)
+        p1 = base_point
+        p2 = (base_point[0] + side_direction[0] * hook_gap, base_point[1] + side_direction[1] * hook_gap)
+        p3 = (p2[0] + back_direction[0] * tail_length, p2[1] + back_direction[1] * tail_length)
+        inner_patch_start = (p2[0] - back_direction[0] * inner_join_overlap, p2[1] - back_direction[1] * inner_join_overlap)
+        arc_side_direction = back_direction
+
+    else:
+        raise ValueError(f"Unknown hook position: {position}")
+
+    return {
+        "width": width,
+        "base": base_point,
+        "p0": p0,
+        "p1": p1,
+        "p2": p2,
+        "p3": p3,
+        "inner_patch_start": inner_patch_start,
+        "inner_patch_end": p3,
+        "line_direction": line_direction,
+        "side_direction": side_direction,
+        "arc_side_direction": arc_side_direction,
+        "arc_steps": arc_steps,
+        "bulge": bulge,
+        "position": position,
+    }
+
+
+def get_single_hook_segments(geometry: dict[str, Any]) -> list[Segment]:
+    arc_segments = base.get_semicircle_segments(
+        start=geometry["p1"],
+        end=geometry["p2"],
+        arc_side_direction=geometry["arc_side_direction"],
+        steps=geometry["arc_steps"],
+    )
+
+    return [
+        (geometry["p0"], geometry["p1"]),
+        *arc_segments,
+        (geometry["p2"], geometry["p3"]),
+        (geometry["inner_patch_start"], geometry["inner_patch_end"]),
+    ]
+
+
 def get_actual_hook_points(geometry: dict[str, Any]) -> list[Point]:
-    points: list[Point] = [
+    return [
         geometry["p0"],
         geometry["p1"],
         *get_actual_hook_arc_points(geometry=geometry, steps=int(geometry.get("arc_steps", 24))),
@@ -63,7 +201,47 @@ def get_actual_hook_points(geometry: dict[str, Any]) -> list[Point]:
         geometry["inner_patch_start"],
         geometry["inner_patch_end"],
     ]
-    return points
+
+
+def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], template: dict, avoidance_lines: list[Segment] | None = None):
+    geometry = get_single_hook_geometry(hook=hook, lines=lines, template=template)
+    width = geometry["width"]
+    points = [
+        (geometry["p0"][0], geometry["p0"][1], 0),
+        (geometry["p1"][0], geometry["p1"][1], geometry["bulge"]),
+        (geometry["p2"][0], geometry["p2"][1], 0),
+        (geometry["p3"][0], geometry["p3"][1], 0),
+    ]
+
+    base.add_rounded_profile_path(msp=msp, points=points, width=width)
+    base.add_rounded_profile_path(
+        msp=msp,
+        points=[
+            (geometry["inner_patch_start"][0], geometry["inner_patch_start"][1], 0),
+            (geometry["inner_patch_end"][0], geometry["inner_patch_end"][1], 0),
+        ],
+        width=width,
+    )
+
+    label = hook.get("label")
+    if label:
+        base.add_fixed_hook_label(msp=msp, label=str(label), geometry=geometry, hook=hook, template=template, lines=lines)
+
+
+def draw_hooks(msp, template: dict, lines: dict[str, dict[str, Point]], parameters: dict[str, float], avoidance_lines: list[Segment] | None = None):
+    width = get_hook_width(template=template)
+
+    for hook in template.get("hooks", []):
+        hook_type = hook.get("type")
+
+        if hook_type == "hook":
+            draw_single_hook(msp=msp, hook=hook, lines=lines, template=template, avoidance_lines=avoidance_lines)
+        elif hook_type == "line":
+            start = resolve_point(hook["start"], parameters)
+            end = resolve_point(hook["end"], parameters)
+            base.add_rounded_profile_path(msp=msp, points=[(start[0], start[1], 0), (end[0], end[1], 0)], width=width)
+        else:
+            raise ValueError(f"Unknown hook type: {hook_type}")
 
 
 def get_hook_line_extension(geometry: dict[str, Any], line_direction: Point) -> float:
@@ -95,6 +273,17 @@ def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
     raise ValueError(f"Unknown dimension side: {side}")
 
 
+def get_hook_projection_extent(geometry: dict[str, Any], normal: Point) -> float:
+    base_point = geometry["base"]
+    max_projection = 0.0
+
+    for point in get_actual_hook_points(geometry=geometry):
+        projection = (point[0] - base_point[0]) * normal[0] + (point[1] - base_point[1]) * normal[1]
+        max_projection = max(max_projection, projection)
+
+    return max_projection + float(geometry["width"]) / 2
+
+
 def get_dimension_hook_data(
     dim: dict,
     parameters: dict[str, float],
@@ -103,18 +292,14 @@ def get_dimension_hook_data(
     template: dict,
     lines: dict[str, dict[str, Point]],
 ) -> tuple[float, float, float, float, float]:
-    clearance_data = base.get_dimension_hook_clearance(
-        dim=dim,
-        parameters=parameters,
-        normal=normal,
-        template=template,
-        lines=lines,
-    )
-    start_gap, end_gap, required_offset = clearance_data[:3]
-
     target_name = dim["target"]
-    profile_width = base.get_profile_width(template=template)
-    hook_line_clearance = resolve_value(dim.get("hook_line_clearance", max(1, profile_width * 0.5)), parameters)
+    profile_width = get_main_profile_width(template=template)
+    profile_gap = profile_width * 2
+    hook_clearance = resolve_value(dim.get("hook_clearance", max(8, profile_width * 4)), parameters) * DIMENSION_HOOK_CLEARANCE_FACTOR
+    hook_line_clearance = resolve_value(dim.get("hook_line_clearance", max(1, get_hook_width(template=template) * 0.5)), parameters)
+    start_gap = profile_gap
+    end_gap = profile_gap
+    required_offset = 0.0
     start_line_extend = 0.0
     end_line_extend = 0.0
 
@@ -122,17 +307,21 @@ def get_dimension_hook_data(
         if hook.get("type") != "hook" or hook.get("attach_to") != target_name:
             continue
 
-        geometry = base.get_single_hook_geometry(hook=hook, lines=lines, template=template)
+        geometry = get_single_hook_geometry(hook=hook, lines=lines, template=template)
         side_direction = geometry["side_direction"]
 
         if side_direction[0] * normal[0] + side_direction[1] * normal[1] < 0.5:
             continue
 
-        line_extend = get_hook_line_extension(geometry=geometry, line_direction=line_direction) + hook_line_clearance
+        hook_extent = get_hook_projection_extent(geometry=geometry, normal=normal)
+        required_offset = max(required_offset, hook_extent + hook_clearance)
 
+        line_extend = get_hook_line_extension(geometry=geometry, line_direction=line_direction) + hook_line_clearance
         if geometry["position"] == "start":
+            start_gap = max(start_gap, hook_extent)
             start_line_extend = max(start_line_extend, line_extend)
         elif geometry["position"] == "end":
+            end_gap = max(end_gap, hook_extent)
             end_line_extend = max(end_line_extend, line_extend)
 
     return start_gap, end_gap, required_offset, start_line_extend, end_line_extend
@@ -153,7 +342,7 @@ def get_parallel_dimension_geometry(
     normal = get_dimension_normal(start=p1, end=p2, side=side)
     line_direction = normalize(get_vector(p1, p2))
 
-    profile_gap = base.get_profile_width(template=template) * 2 if template is not None else CAD_STYLES["profile"]["width"] * 2
+    profile_gap = get_main_profile_width(template=template) * 2 if template is not None else CAD_STYLES["profile"]["width"] * 2
     start_gap = profile_gap
     end_gap = profile_gap
     start_line_extend = 0.0
@@ -229,19 +418,14 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
     d1 = geometry["d1"]
     d2 = geometry["d2"]
 
-    attribs = {
-        "layer": CAD_STYLES["dimensions"]["layer"],
-        "color": CAD_STYLES["dimensions"]["color"],
-        "lineweight": CAD_STYLES["dimensions"]["lineweight"],
-    }
-
+    attribs = get_dimension_attribs()
     msp.add_line(d1, d2, dxfattribs=attribs)
     msp.add_line(geometry["e1_start"], geometry["e1_end"], dxfattribs=attribs)
     msp.add_line(geometry["e2_start"], geometry["e2_end"], dxfattribs=attribs)
 
     dimension_direction = get_vector(d1, d2)
-    add_tick(msp, d1, direction=dimension_direction, size=15)
-    add_tick(msp, d2, direction=dimension_direction, size=15)
+    add_scaled_tick(msp, d1, direction=dimension_direction, size=15)
+    add_scaled_tick(msp, d2, direction=dimension_direction, size=15)
 
     mid = ((d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2)
     text_position = offset_point(mid, normal, 12)
@@ -280,8 +464,8 @@ def build_obstacle_lines(template: dict, parameters: dict[str, float], lines: di
         hook_type = hook.get("type")
 
         if hook_type == "hook":
-            geometry = base.get_single_hook_geometry(hook=hook, lines=lines, template=template)
-            obstacles.extend(base.get_single_hook_segments(geometry=geometry))
+            geometry = get_single_hook_geometry(hook=hook, lines=lines, template=template)
+            obstacles.extend(get_single_hook_segments(geometry=geometry))
         elif hook_type == "line":
             obstacles.append((resolve_point(hook["start"], parameters), resolve_point(hook["end"], parameters)))
 
@@ -307,8 +491,8 @@ def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]
     lines = base.build_named_lines(template=template, parameters=parameters)
     obstacle_lines = build_obstacle_lines(template=template, parameters=parameters, lines=lines)
 
-    base.draw_profile(msp=msp, template=template, lines=lines, parameters=parameters)
-    base.draw_hooks(msp=msp, template=template, lines=lines, parameters=parameters, avoidance_lines=obstacle_lines)
+    draw_profile(msp=msp, template=template, lines=lines, parameters=parameters)
+    draw_hooks(msp=msp, template=template, lines=lines, parameters=parameters, avoidance_lines=obstacle_lines)
     draw_dimensions(msp=msp, template=template, parameters=parameters, lines=lines)
     base.draw_markers(msp=msp, template=template, parameters=parameters, lines=lines)
     base.draw_angle_marks(msp=msp, template=template, parameters=parameters, lines=lines)
