@@ -1,0 +1,91 @@
+[
+  {
+    "template_code": "pl_1",
+    "parameters": {
+      "A": 0,
+      "B": 0
+    }
+  },
+  {
+    "template_code": "pl_2",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "C": 0
+    }
+  },
+  {
+    "template_code": "pl_3",
+    "parameters": {
+      "A": 0,
+      "B": 0
+    }
+  },
+  {
+    "template_code": "pl_4",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "K1": 0
+    }
+  },
+  {
+    "template_code": "pl_5",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "K1": 0
+    }
+  },
+  {
+    "template_code": "pl_6",
+    "parameters": {
+      "A": 0,
+      "K1": 0
+    }
+  },
+  {
+    "template_code": "pl_7",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "K1": 0
+    }
+  },
+  {
+    "template_code": "pl_8",
+    "parameters": {
+      "A": 0
+    }
+  },
+  {
+    "template_code": "pl_9",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "C": 0
+    }
+  },
+  {
+    "template_code": "pl_10",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "D": 0,
+      "E": 0,
+      "K1": 0,
+      "K2": 0
+    }
+  },
+  {
+    "template_code": "pl_11",
+    "parameters": {
+      "A": 0,
+      "B": 0,
+      "C": 0,
+      "K1": 0
+    }
+  }
+]
