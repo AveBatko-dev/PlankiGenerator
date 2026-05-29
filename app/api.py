@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 
 from app.dwg_converter import convert_dxf_to_dwg
-from app.dxf_generator_final import generate_dxf
+from app.dxf_generator import generate_dxf
 from app.file_storage import create_output_paths
 from app.models import GenerateDrawingRequest, GenerateDrawingResponse
 from app.templates import load_template
