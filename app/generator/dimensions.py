@@ -73,21 +73,24 @@ def get_dimension_hook_data(
             continue
 
         geometry = get_single_hook_geometry(hook=hook, lines=lines, template=template)
-        side_direction = geometry["side_direction"]
+        line_extend = get_hook_line_extension(geometry=geometry, line_direction=line_direction) + hook_line_clearance
 
+        if geometry["position"] == "start":
+            start_line_extend = max(start_line_extend, line_extend)
+        elif geometry["position"] == "end":
+            end_line_extend = max(end_line_extend, line_extend)
+
+        side_direction = geometry["side_direction"]
         if side_direction[0] * normal[0] + side_direction[1] * normal[1] < 0.5:
             continue
 
         hook_extent = get_hook_projection_extent(geometry=geometry, normal=normal)
         required_offset = max(required_offset, hook_extent + hook_clearance)
 
-        line_extend = get_hook_line_extension(geometry=geometry, line_direction=line_direction) + hook_line_clearance
         if geometry["position"] == "start":
             start_gap = max(start_gap, hook_extent)
-            start_line_extend = max(start_line_extend, line_extend)
         elif geometry["position"] == "end":
             end_gap = max(end_gap, hook_extent)
-            end_line_extend = max(end_line_extend, line_extend)
 
     return start_gap, end_gap, required_offset, start_line_extend, end_line_extend
 
