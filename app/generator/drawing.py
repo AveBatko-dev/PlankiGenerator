@@ -1,6 +1,7 @@
 import math
 
 import ezdxf
+from ezdxf.enums import TextEntityAlignment
 
 from config import CAD_STYLES
 from .geometry import normalize
@@ -38,6 +39,22 @@ def add_text(msp, text: str, position: Point, height: float | None = None, rotat
             "lineweight": CAD_STYLES["text"]["lineweight"],
         },
     ).set_placement(position)
+
+
+def add_centered_text(msp, text: str, position: Point, height: float | None = None, rotation: float = 0):
+    if height is None:
+        height = CAD_STYLES["text"]["height"]
+
+    msp.add_text(
+        text,
+        dxfattribs={
+            "height": height,
+            "rotation": rotation,
+            "layer": TEXT_LAYER,
+            "color": CAD_STYLES["text"]["color"],
+            "lineweight": CAD_STYLES["text"]["lineweight"],
+        },
+    ).set_placement(position, align=TextEntityAlignment.MIDDLE_CENTER)
 
 
 def estimate_text_size(text: str, height: float) -> tuple[float, float]:
