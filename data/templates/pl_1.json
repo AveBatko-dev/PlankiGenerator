@@ -31,7 +31,7 @@
   ],
   "markers": [
     {"type": "thickness_triangle", "name": "left_thickness_marker", "target": "left_vertical",
-      "position": 0.5, "side": "left", "height": 12, "depth": 10, "offset": 2}
+      "position": 0.5, "side": "left", "height": 12, "depth": 10, "offset": 0.5}
   ],
   "angle_marks": []
 }
