@@ -9,6 +9,7 @@ from .settings import DIMENSION_HOOK_CLEARANCE_FACTOR, get_dimension_attribs, ge
 from .types import Point, Segment
 
 DIMENSION_TEXT_GAP = 5
+DIMENSION_EXTENSION_BACKSTEP = 4
 
 
 def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
@@ -97,6 +98,10 @@ def get_dimension_hook_data(
     return start_gap, end_gap, required_offset, start_line_extend, end_line_extend
 
 
+def get_extension_start(point: Point, normal: Point, gap: float, offset: float, backstep: float) -> Point:
+    return offset_point(point, normal, min(gap, offset) - backstep)
+
+
 def get_parallel_dimension_geometry(
     dim: dict,
     parameters: dict[str, float],
@@ -111,6 +116,7 @@ def get_parallel_dimension_geometry(
     side = dim.get("side", "left")
     normal = get_dimension_normal(start=p1, end=p2, side=side)
     line_direction = normalize(get_vector(p1, p2))
+    extension_backstep = resolve_value(dim.get("extension_backstep", DIMENSION_EXTENSION_BACKSTEP), parameters)
 
     profile_gap = get_main_profile_width(template=template) * 2 if template is not None else CAD_STYLES["profile"]["width"] * 2
     start_gap = profile_gap
@@ -147,9 +153,9 @@ def get_parallel_dimension_geometry(
         "normal": normal,
         "d1": d1,
         "d2": d2,
-        "e1_start": offset_point(p1_dimension, normal, min(start_gap, offset)),
+        "e1_start": get_extension_start(p1_dimension, normal, start_gap, offset, extension_backstep),
         "e1_end": d1,
-        "e2_start": offset_point(p2_dimension, normal, min(end_gap, offset)),
+        "e2_start": get_extension_start(p2_dimension, normal, end_gap, offset, extension_backstep),
         "e2_end": d2,
     }
 
