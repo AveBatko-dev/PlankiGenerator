@@ -9,7 +9,7 @@ from .settings import DIMENSION_HOOK_CLEARANCE_FACTOR, get_dimension_attribs, ge
 from .types import Point, Segment
 
 DIMENSION_TEXT_GAP = 5
-DIMENSION_EXTENSION_BACKSTEP = 10
+DIMENSION_EXTENSION_BACKSTEP = 6
 
 
 def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
@@ -98,8 +98,13 @@ def get_dimension_hook_data(
     return start_gap, end_gap, required_offset, start_line_extend, end_line_extend
 
 
-def get_extension_start(point: Point, normal: Point, gap: float, offset: float, backstep: float) -> Point:
-    return offset_point(point, normal, min(gap, offset) - backstep)
+def get_extension_front_start(point: Point, normal: Point, gap: float, offset: float) -> Point:
+    return offset_point(point, normal, min(gap, offset))
+
+
+def get_extension_back_start(point: Point, normal: Point, gap: float, offset: float, backstep: float) -> Point:
+    front_distance = min(gap, offset)
+    return offset_point(point, normal, front_distance - backstep)
 
 
 def get_parallel_dimension_geometry(
@@ -146,6 +151,8 @@ def get_parallel_dimension_geometry(
 
     d1 = offset_point(p1_dimension, normal, offset)
     d2 = offset_point(p2_dimension, normal, offset)
+    e1_front_start = get_extension_front_start(p1_dimension, normal, start_gap, offset)
+    e2_front_start = get_extension_front_start(p2_dimension, normal, end_gap, offset)
 
     return {
         "p1": p1_dimension,
@@ -153,9 +160,11 @@ def get_parallel_dimension_geometry(
         "normal": normal,
         "d1": d1,
         "d2": d2,
-        "e1_start": get_extension_start(p1_dimension, normal, start_gap, offset, extension_backstep),
+        "e1_back_start": get_extension_back_start(p1_dimension, normal, start_gap, offset, extension_backstep),
+        "e1_start": e1_front_start,
         "e1_end": d1,
-        "e2_start": get_extension_start(p2_dimension, normal, end_gap, offset, extension_backstep),
+        "e2_back_start": get_extension_back_start(p2_dimension, normal, end_gap, offset, extension_backstep),
+        "e2_start": e2_front_start,
         "e2_end": d2,
     }
 
@@ -173,7 +182,9 @@ def get_parallel_dimension_segments(
 
     return [
         (d1, d2),
+        (geometry["e1_back_start"], geometry["e1_start"]),
         (geometry["e1_start"], geometry["e1_end"]),
+        (geometry["e2_back_start"], geometry["e2_start"]),
         (geometry["e2_start"], geometry["e2_end"]),
         get_tick_segment(d1, direction=dimension_direction, size=15),
         get_tick_segment(d2, direction=dimension_direction, size=15),
@@ -202,7 +213,9 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
 
     attribs = get_dimension_attribs()
     msp.add_line(d1, d2, dxfattribs=attribs)
+    msp.add_line(geometry["e1_back_start"], geometry["e1_start"], dxfattribs=attribs)
     msp.add_line(geometry["e1_start"], geometry["e1_end"], dxfattribs=attribs)
+    msp.add_line(geometry["e2_back_start"], geometry["e2_start"], dxfattribs=attribs)
     msp.add_line(geometry["e2_start"], geometry["e2_end"], dxfattribs=attribs)
 
     dimension_direction = get_vector(d1, d2)
