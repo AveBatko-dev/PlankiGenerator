@@ -1,12 +1,14 @@
 from typing import Any
 
 from config import CAD_STYLES
-from .drawing import add_text, add_tick, get_tick_segment
+from .drawing import add_centered_text, add_text, add_tick, get_tick_segment
 from .formulas import fmt, resolve_value
 from .geometry import get_angle_degrees, get_vector, normalize, offset_point, rotate_clockwise, rotate_counterclockwise
 from .hooks import get_actual_hook_points, get_single_hook_geometry
 from .settings import DIMENSION_HOOK_CLEARANCE_FACTOR, get_dimension_attribs, get_hook_width, get_main_profile_width
 from .types import Point, Segment
+
+DIMENSION_TEXT_GAP = 5
 
 
 def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
@@ -172,6 +174,12 @@ def get_parallel_dimension_segments(
     ]
 
 
+def get_dimension_text_position(dim: dict, d1: Point, d2: Point, normal: Point, parameters: dict[str, float]) -> Point:
+    gap = resolve_value(dim.get("text_gap", DIMENSION_TEXT_GAP), parameters)
+    mid = ((d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2)
+    return offset_point(mid, normal, gap)
+
+
 def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]], template: dict | None = None):
     param_name = dim["param"]
     if param_name not in parameters:
@@ -195,15 +203,14 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
     add_tick(msp, d1, direction=dimension_direction, size=15)
     add_tick(msp, d2, direction=dimension_direction, size=15)
 
-    mid = ((d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2)
-    text_position = offset_point(mid, normal, 12)
+    text_position = get_dimension_text_position(dim=dim, d1=d1, d2=d2, normal=normal, parameters=parameters)
 
     if dim.get("text_rotation") == "auto":
         text_rotation = get_angle_degrees(d1, d2)
     else:
         text_rotation = dim.get("text_rotation", 0)
 
-    add_text(
+    add_centered_text(
         msp=msp,
         text=fmt(parameters[param_name]),
         position=text_position,
