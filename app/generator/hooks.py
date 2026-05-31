@@ -2,7 +2,7 @@ from typing import Any
 import math
 
 from config import CAD_STYLES
-from .drawing import add_rounded_profile_path, add_text, estimate_text_size
+from .drawing import add_rounded_profile_path
 from .formulas import resolve_point
 from .geometry import (
     get_distance,
@@ -13,6 +13,7 @@ from .geometry import (
     rotate_vector,
     get_semicircle_segments,
 )
+from .labels import draw_auto_label
 from .settings import HOOK_SPAN_FACTOR, get_hook_width
 from .types import Point, Segment
 
@@ -188,73 +189,93 @@ def get_dimension_normal_for_hook(hook: dict, template: dict, lines: dict[str, d
     return None
 
 
-def get_default_label_direction(label: str, geometry: dict[str, Any]) -> Point:
-    normalized_label = label.strip().upper()
+def add_vectors(first: Point, second: Point) -> Point:
+    return first[0] + second[0], first[1] + second[1]
+
+
+def negate_vector(vector: Point) -> Point:
+    return -vector[0], -vector[1]
+
+
+def get_hook_label_preferred_directions(label: str, geometry: dict[str, Any], hook: dict, template: dict, lines: dict[str, dict[str, Point]]) -> list[Point]:
+    fixed_direction = hook.get("label_fixed_direction")
     line_direction = geometry["line_direction"]
     side_direction = geometry["side_direction"]
+    opposite_line_direction = negate_vector(line_direction)
+    opposite_side_direction = negate_vector(side_direction)
+    dimension_normal = get_dimension_normal_for_hook(hook=hook, template=template, lines=lines)
+    opposite_dimension = negate_vector(dimension_normal) if dimension_normal is not None else side_direction
 
-    if normalized_label == "Z1":
-        return normalize((side_direction[0] - line_direction[0], side_direction[1] - line_direction[1]))
-    if normalized_label == "Z2":
-        return normalize((side_direction[0] + line_direction[0], side_direction[1] + line_direction[1]))
-
-    return side_direction
-
-
-def get_fixed_label_direction(label: str, geometry: dict[str, Any], hook: dict, template: dict, lines: dict[str, dict[str, Point]]) -> Point:
-    fixed_direction = hook.get("label_fixed_direction")
-    if fixed_direction == "line_left":
-        return rotate_counterclockwise(geometry["line_direction"])
-    if fixed_direction == "line_right":
-        return rotate_clockwise(geometry["line_direction"])
-    if fixed_direction == "hook_side":
-        return geometry["side_direction"]
-    if fixed_direction == "opposite_hook_side":
-        side_direction = geometry["side_direction"]
-        return (-side_direction[0], -side_direction[1])
-    if fixed_direction == "opposite_dimension":
-        dimension_normal = get_dimension_normal_for_hook(hook=hook, template=template, lines=lines)
-        if dimension_normal is not None:
-            return (-dimension_normal[0], -dimension_normal[1])
+    manual_directions = {
+        "line_forward": line_direction,
+        "line_back": opposite_line_direction,
+        "hook_side": side_direction,
+        "opposite_hook_side": opposite_side_direction,
+        "line_left": rotate_counterclockwise(line_direction),
+        "line_right": rotate_clockwise(line_direction),
+        "opposite_dimension": opposite_dimension,
+    }
+    if fixed_direction in manual_directions:
+        first = manual_directions[fixed_direction]
+        return [first, side_direction, opposite_dimension, add_vectors(first, side_direction)]
 
     fixed_side = hook.get("label_fixed_side")
     if fixed_side == "left":
-        return (-1, 0)
+        return [(-1, 0), side_direction, opposite_dimension]
     if fixed_side == "right":
-        return (1, 0)
+        return [(1, 0), side_direction, opposite_dimension]
 
-    return get_default_label_direction(label=label, geometry=geometry)
+    normalized_label = label.strip().upper()
+    if normalized_label == "Z1":
+        primary = add_vectors(side_direction, opposite_line_direction)
+        secondary = side_direction
+        tertiary = add_vectors(opposite_dimension, opposite_line_direction)
+    elif normalized_label == "Z2":
+        primary = add_vectors(side_direction, opposite_line_direction)
+        secondary = opposite_dimension
+        tertiary = side_direction
+    else:
+        primary = side_direction
+        secondary = opposite_dimension
+        tertiary = add_vectors(side_direction, line_direction)
+
+    return [
+        primary,
+        secondary,
+        tertiary,
+        add_vectors(side_direction, line_direction),
+        add_vectors(side_direction, opposite_line_direction),
+        line_direction,
+        opposite_line_direction,
+        opposite_side_direction,
+    ]
 
 
-def get_label_text_position(anchor: Point, direction: Point, text_width: float, text_height: float) -> Point:
-    direction = normalize(direction)
-    x = anchor[0]
-    y = anchor[1]
-
-    if direction[0] < -0.15:
-        x -= text_width
-    elif abs(direction[0]) <= 0.15:
-        x -= text_width / 2
-
-    if direction[1] < -0.15:
-        y -= text_height
-    elif abs(direction[1]) <= 0.15:
-        y -= text_height / 2
-
-    return x, y
-
-
-def add_fixed_hook_label(msp, label: str, geometry: dict[str, Any], hook: dict, template: dict, lines: dict[str, dict[str, Point]]):
+def add_fixed_hook_label(
+    msp,
+    label: str,
+    geometry: dict[str, Any],
+    hook: dict,
+    template: dict,
+    lines: dict[str, dict[str, Point]],
+    avoidance_lines: list[Segment] | None = None,
+):
     height = float(hook.get("label_height", CAD_STYLES["text"]["height"]))
     rotation = float(hook.get("label_rotation", 0))
-    text_width, text_height = estimate_text_size(text=label, height=height)
-    label_direction = get_fixed_label_direction(label=label, geometry=geometry, hook=hook, template=template, lines=lines)
     gap = float(hook.get("label_fixed_gap", max(10, geometry["width"] * 4)))
-    base = geometry["base"]
-    anchor = (base[0] + label_direction[0] * gap, base[1] + label_direction[1] * gap)
-    label_position = get_label_text_position(anchor=anchor, direction=label_direction, text_width=text_width, text_height=text_height)
+    preferred_directions = get_hook_label_preferred_directions(label=label, geometry=geometry, hook=hook, template=template, lines=lines)
+    label_obstacles = (avoidance_lines or []) + get_single_hook_segments(geometry=geometry)
 
-    add_text(msp=msp, text=label, position=label_position, height=height, rotation=rotation)
+    draw_auto_label(
+        msp=msp,
+        text=label,
+        anchor=geometry["base"],
+        preferred_directions=preferred_directions,
+        gap=gap,
+        obstacles=label_obstacles,
+        height=height,
+        rotation=rotation,
+    )
 
 
 def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], template: dict, avoidance_lines: list[Segment] | None = None):
@@ -279,7 +300,15 @@ def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], templa
 
     label = hook.get("label")
     if label:
-        add_fixed_hook_label(msp=msp, label=str(label), geometry=geometry, hook=hook, template=template, lines=lines)
+        add_fixed_hook_label(
+            msp=msp,
+            label=str(label),
+            geometry=geometry,
+            hook=hook,
+            template=template,
+            lines=lines,
+            avoidance_lines=avoidance_lines,
+        )
 
 
 def draw_hooks(msp, template: dict, lines: dict[str, dict[str, Point]], parameters: dict[str, float], avoidance_lines: list[Segment] | None = None):
