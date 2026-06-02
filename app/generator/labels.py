@@ -3,6 +3,7 @@ from .geometry import get_distance, normalize
 from .types import Point, Segment
 
 Box = tuple[float, float, float, float]
+LABEL_BOLD_OFFSET = 0.35
 
 
 def get_label_text_position(anchor: Point, direction: Point, text_width: float, text_height: float) -> Point:
@@ -160,6 +161,7 @@ def draw_auto_label(
     obstacles: list[Segment] | None = None,
     height: float = 2.5,
     rotation: float = 0,
+    bold_offset: float = LABEL_BOLD_OFFSET,
 ):
     text_width, text_height = estimate_text_size(text=text, height=height)
     position = choose_label_position(
@@ -170,4 +172,4 @@ def draw_auto_label(
         text_height=text_height,
         obstacles=obstacles,
     )
-    add_text(msp=msp, text=text, position=position, height=height, rotation=rotation)
+    add_text(msp=msp, text=text, position=position, height=height, rotation=rotation, bold_offset=bold_offset)
