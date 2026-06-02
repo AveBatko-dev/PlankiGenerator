@@ -7,6 +7,8 @@ from .geometry import get_angle_degrees, get_arc_segments
 from .settings import get_dimension_attribs
 from .types import Point, Segment
 
+ANGLE_TEXT_LINEWEIGHT = 40
+
 
 def get_angle_mark_geometry(mark: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]]):
     param_name = mark["param"]
@@ -72,4 +74,5 @@ def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: d
             position=text_position,
             height=mark.get("text_height", CAD_STYLES["text"]["height"]),
             rotation=mark.get("text_rotation", 0),
+            lineweight=mark.get("text_lineweight", ANGLE_TEXT_LINEWEIGHT),
         )
