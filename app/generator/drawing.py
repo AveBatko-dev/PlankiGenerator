@@ -25,45 +25,37 @@ def setup_document():
     return doc
 
 
-def get_text_attribs(height: float, rotation: float) -> dict:
+def get_text_attribs(height: float, rotation: float, lineweight: int | None = None) -> dict:
+    if lineweight is None:
+        lineweight = CAD_STYLES["text"]["lineweight"]
+
     return {
         "height": height,
         "rotation": rotation,
         "layer": TEXT_LAYER,
         "color": CAD_STYLES["text"]["color"],
-        "lineweight": CAD_STYLES["text"]["lineweight"],
+        "lineweight": lineweight,
     }
 
 
-def get_bold_offsets(bold_offset: float = 0.0) -> list[Point]:
-    if bold_offset <= 0:
-        return [(0.0, 0.0)]
-
-    return [
-        (0.0, 0.0),
-        (bold_offset, 0.0),
-        (0.0, bold_offset),
-    ]
-
-
-def add_text(msp, text: str, position: Point, height: float | None = None, rotation: float = 0, bold_offset: float = 0.0):
+def add_text(msp, text: str, position: Point, height: float | None = None, rotation: float = 0, lineweight: int | None = None):
     if height is None:
         height = CAD_STYLES["text"]["height"]
 
-    attribs = get_text_attribs(height=height, rotation=rotation)
-    for offset_x, offset_y in get_bold_offsets(bold_offset=bold_offset):
-        shifted_position = (position[0] + offset_x, position[1] + offset_y)
-        msp.add_text(text, dxfattribs=attribs).set_placement(shifted_position)
+    msp.add_text(
+        text,
+        dxfattribs=get_text_attribs(height=height, rotation=rotation, lineweight=lineweight),
+    ).set_placement(position)
 
 
-def add_centered_text(msp, text: str, position: Point, height: float | None = None, rotation: float = 0, bold_offset: float = 0.0):
+def add_centered_text(msp, text: str, position: Point, height: float | None = None, rotation: float = 0, lineweight: int | None = None):
     if height is None:
         height = CAD_STYLES["text"]["height"]
 
-    attribs = get_text_attribs(height=height, rotation=rotation)
-    for offset_x, offset_y in get_bold_offsets(bold_offset=bold_offset):
-        shifted_position = (position[0] + offset_x, position[1] + offset_y)
-        msp.add_text(text, dxfattribs=attribs).set_placement(shifted_position, align=TextEntityAlignment.MIDDLE_CENTER)
+    msp.add_text(
+        text,
+        dxfattribs=get_text_attribs(height=height, rotation=rotation, lineweight=lineweight),
+    ).set_placement(position, align=TextEntityAlignment.MIDDLE_CENTER)
 
 
 def estimate_text_size(text: str, height: float) -> tuple[float, float]:
