@@ -9,7 +9,7 @@ from .settings import DIMENSION_HOOK_CLEARANCE_FACTOR, get_dimension_attribs, ge
 from .types import Point, Segment
 
 DIMENSION_TEXT_GAP = 5
-DIMENSION_EXTENSION_OVERHANG = 6
+DIMENSION_EXTENSION_OVERHANG = 2.5
 
 
 def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
