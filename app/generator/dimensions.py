@@ -10,7 +10,7 @@ from .types import Point, Segment
 
 DIMENSION_TEXT_GAP = 5
 DIMENSION_EXTENSION_OVERHANG = 2.5
-DIMENSION_TEXT_BOLD_OFFSET = 0.35
+DIMENSION_TEXT_LINEWEIGHT = 40
 
 
 def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
@@ -227,7 +227,7 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
         position=text_position,
         height=dim.get("text_height", CAD_STYLES["text"]["height"]),
         rotation=text_rotation,
-        bold_offset=dim.get("text_bold_offset", DIMENSION_TEXT_BOLD_OFFSET),
+        lineweight=dim.get("text_lineweight", DIMENSION_TEXT_LINEWEIGHT),
     )
 
 
