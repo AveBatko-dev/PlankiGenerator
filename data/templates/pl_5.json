@@ -23,8 +23,10 @@
     ]
   },
   "hooks": [
-    {"type": "hook", "name": "bottom_hook", "attach_to": "vertical_main", "position": "start", "length": 18, "angle": 90},
-    {"type": "hook", "name": "right_hook", "attach_to": "angled_main", "position": "end", "length": 18, "angle": 90}
+    {"type": "hook", "name": "bottom_hook_z1", "attach_to": "vertical_main", "position": "start",
+      "length": 18, "angle": 90, "label": "Z1", "label_height": 8},
+    {"type": "hook", "name": "right_hook_z2", "attach_to": "angled_main", "position": "end",
+      "length": 18, "angle": 90, "label": "Z2", "label_height": 8}
   ],
   "dimensions": [
     {"type": "parallel_to_line", "name": "dimension_B", "param": "B", "target": "vertical_main",
