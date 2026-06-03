@@ -74,7 +74,9 @@
       "position": "start",
       "length": 18,
       "angle": 90,
-      "side": "left"
+      "side": "left",
+      "label": "Z1",
+      "label_height": 8
     },
     {
       "type": "hook",
@@ -83,7 +85,9 @@
       "position": "end",
       "length": 18,
       "angle": 90,
-      "side": "left"
+      "side": "left",
+      "label": "Z2",
+      "label_height": 8
     }
   ],
 
@@ -135,28 +139,41 @@
     }
   ],
 
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "middle_horizontal",
+      "position": 0.5,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
   "angle_marks": [
-  {
-    "type": "between_lines",
-    "name": "angle_K1_left",
-    "param": "K1",
-    "line_1": "left_slanted",
-    "line_2": "middle_horizontal",
-    "radius": 24,
-    "text_offset": 8,
-    "arc_side": "other",
-    "enabled": true
-  },
-  {
-    "type": "between_lines",
-    "name": "angle_K1_right",
-    "param": "K1",
-    "line_1": "middle_horizontal",
-    "line_2": "right_slanted",
-    "radius": 24,
-    "text_offset": 8,
-    "arc_side": "other",
-    "enabled": true
-  }
-]
-  }
+    {
+      "type": "between_lines",
+      "name": "angle_K1_left",
+      "param": "K1",
+      "line_1": "left_slanted",
+      "line_2": "middle_horizontal",
+      "radius": 24,
+      "text_offset": 8,
+      "arc_side": "other",
+      "enabled": true
+    },
+    {
+      "type": "between_lines",
+      "name": "angle_K1_right",
+      "param": "K1",
+      "line_1": "middle_horizontal",
+      "line_2": "right_slanted",
+      "radius": 24,
+      "text_offset": 8,
+      "arc_side": "other",
+      "enabled": true
+    }
+  ]
+}
