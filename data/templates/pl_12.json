@@ -1,0 +1,137 @@
+{
+  "code": "pl_12",
+  "display_code": "Пл. 12",
+  "name": "Планка з перегином",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "bottom_vertical",
+        "start": [0, 0],
+        "end": [0, "A"]
+      },
+      {
+        "type": "line",
+        "name": "slanted",
+        "start": [0, "A"],
+        "end": [
+          "B*cos(radians(180-K1))",
+          "A + B*sin(radians(180-K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_vertical",
+        "start": [
+          "B*cos(radians(180-K1))",
+          "A + B*sin(radians(180-K1))"
+        ],
+        "end": [
+          "B*cos(radians(180-K1))",
+          "A + B*sin(radians(180-K1)) + C"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_horizontal",
+        "start": [
+          "B*cos(radians(180-K1))",
+          "A + B*sin(radians(180-K1)) + C"
+        ],
+        "end": [
+          "B*cos(radians(180-K1)) + D",
+          "A + B*sin(radians(180-K1)) + C"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "bottom_hook_z1",
+      "attach_to": "bottom_vertical",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "label": "Z1",
+      "label_height": 8
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "top_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "side": "left",
+      "label": "Z2",
+      "label_height": 8
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "bottom_vertical",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": 90
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "top_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "top_vertical",
+      "position": 0.65,
+      "side": "left",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+      "line_1": "bottom_vertical",
+      "line_2": "slanted",
+      "radius": 24,
+      "text_offset": 8,
+      "arc_side": "other",
+      "enabled": true
+    }
+  ]
+}
