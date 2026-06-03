@@ -34,6 +34,10 @@
     {"type": "parallel_to_line", "name": "dimension_A_top", "param": "A", "target": "top_main",
       "offset": 22, "side": "left", "text_rotation": "auto"}
   ],
+  "markers": [
+    {"type": "thickness_triangle", "name": "thickness_marker", "target": "vertical_main",
+      "position": 0.5, "side": "left", "height": 12, "depth": 10, "offset": 0.5}
+  ],
   "angle_marks": [
     {"type": "between_lines", "name": "angle_K1", "param": "K1", "line_1": "vertical_main",
       "line_2": "top_main", "radius": 28, "text_offset": 8, "enabled": true}
