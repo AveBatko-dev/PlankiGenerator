@@ -74,7 +74,9 @@
       "position": "start",
       "length": 18,
       "angle": 90,
-      "side": "right"
+      "side": "right",
+      "label": "Z1",
+      "label_height": 8
     },
     {
       "type": "hook",
@@ -83,7 +85,9 @@
       "position": "end",
       "length": 18,
       "angle": 90,
-      "side": "right"
+      "side": "right",
+      "label": "Z2",
+      "label_height": 8
     }
   ],
 
@@ -132,6 +136,19 @@
       "offset": 22,
       "side": "right",
       "text_rotation": "auto"
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "top_horizontal",
+      "position": 0.5,
+      "side": "left",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
     }
   ],
 
