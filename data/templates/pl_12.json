@@ -79,34 +79,47 @@
   ],
 
   "dimensions": [
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_A",
-      "param": "A",
-      "target": "bottom_vertical",
-      "offset": 22,
-      "side": "right",
-      "text_rotation": 90
-    },
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_C",
-      "param": "C",
-      "target": "top_vertical",
-      "offset": 22,
-      "side": "left",
-      "text_rotation": 90
-    },
-    {
-      "type": "parallel_to_line",
-      "name": "dimension_D",
-      "param": "D",
-      "target": "top_horizontal",
-      "offset": 22,
-      "side": "left",
-      "text_rotation": "auto"
-    }
-  ],
+  {
+    "type": "parallel_to_line",
+    "name": "dimension_A",
+    "param": "A",
+    "target": "bottom_vertical",
+    "offset": 22,
+    "side": "right",
+    "text_rotation": 90,
+    "hook_line_clearance": -1,
+    "extension_overhang": 6
+  },
+  {
+    "type": "parallel_to_line",
+    "name": "dimension_B",
+    "param": "B",
+    "target": "slanted",
+    "offset": 18,
+    "side": "left",
+    "text_rotation": "auto"
+  },
+  {
+    "type": "parallel_to_line",
+    "name": "dimension_C",
+    "param": "C",
+    "target": "top_vertical",
+    "offset": 22,
+    "side": "left",
+    "text_rotation": 90
+  },
+  {
+    "type": "parallel_to_line",
+    "name": "dimension_D",
+    "param": "D",
+    "target": "top_horizontal",
+    "offset": 22,
+    "side": "left",
+    "text_rotation": "auto",
+    "hook_line_clearance": -1,
+    "extension_overhang": 6
+  }
+],
 
   "markers": [
     {
@@ -121,26 +134,26 @@
     }
   ],
 
-"angle_marks": [
-  {
-    "type": "between_lines",
-    "name": "angle_K1",
-    "param": "K1",
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
 
-    "line_1": "top_vertical",
-    "line_2": "slanted",
+      "line_1": "top_vertical",
+      "line_2": "slanted",
 
-    "center_point": "start",
-    "line_2_point": "start",
+      "center_point": "start",
+      "line_2_point": "start",
 
-    "radius": 22,
-    "tick_size": 12,
-    "text_offset": 7,
+      "radius": 22,
+      "tick_size": 12,
+      "text_offset": 7,
 
-    "arc_side": "other",
-    "text_rotation": -65,
+      "arc_side": "other",
+      "text_rotation": -65,
 
-    "enabled": true
-  }
-]
-  }
+      "enabled": true
+    }
+  ]
+}
