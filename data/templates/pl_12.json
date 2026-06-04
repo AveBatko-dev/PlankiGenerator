@@ -23,32 +23,32 @@
         "name": "slanted",
         "start": [0, "A"],
         "end": [
-          "B*cos(radians(180-K1))",
-          "A + B*sin(radians(180-K1))"
+          "-B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1))"
         ]
       },
       {
         "type": "line",
         "name": "top_vertical",
         "start": [
-          "B*cos(radians(180-K1))",
-          "A + B*sin(radians(180-K1))"
+          "-B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1))"
         ],
         "end": [
-          "B*cos(radians(180-K1))",
-          "A + B*sin(radians(180-K1)) + C"
+          "-B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1)) + C"
         ]
       },
       {
         "type": "line",
         "name": "top_horizontal",
         "start": [
-          "B*cos(radians(180-K1))",
-          "A + B*sin(radians(180-K1)) + C"
+          "-B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1)) + C"
         ],
         "end": [
-          "B*cos(radians(180-K1)) + D",
-          "A + B*sin(radians(180-K1)) + C"
+          "-B*sin(radians(180-K1)) + D",
+          "A + B*cos(radians(180-K1)) + C"
         ]
       }
     ]
