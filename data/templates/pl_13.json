@@ -115,17 +115,16 @@
       "extension_overhang": 6
     },
     {
-      "type": "parallel_to_line",
-      "name": "dimension_B",
-      "param": "B",
-      "target": "slanted",
-      "offset": 18,
-      "side": "left",
-      "text_rotation": "auto",
-      "text_rotation_offset": 180,
-      "text_side": "inside",
-      "text_gap": 5
-    },
+  "type": "parallel_to_line",
+  "name": "dimension_B",
+  "param": "B",
+  "target": "slanted",
+  "offset": 18,
+  "side": "right",
+  "text_rotation": "auto",
+  "text_side": "inside",
+  "text_gap": 5
+},
     {
       "type": "parallel_to_line",
       "name": "dimension_C",

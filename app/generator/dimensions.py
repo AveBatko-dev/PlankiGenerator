@@ -24,6 +24,15 @@ def get_dimension_normal(start: Point, end: Point, side: str) -> Point:
     raise ValueError(f"Unknown dimension side: {side}")
 
 
+def make_text_readable(rotation: float) -> float:
+    normalized = rotation % 360
+
+    if 90 < normalized < 270:
+        rotation += 180
+
+    return rotation % 360
+
+
 def get_hook_projection_extent(geometry: dict[str, Any], normal: Point) -> float:
     base_point = geometry["base"]
     max_projection = 0.0
@@ -66,6 +75,7 @@ def get_dimension_hook_data(
     profile_gap = profile_width * 2
     hook_clearance = resolve_value(dim.get("hook_clearance", max(8, profile_width * 4)), parameters) * DIMENSION_HOOK_CLEARANCE_FACTOR
     hook_line_clearance = resolve_value(dim.get("hook_line_clearance", max(1, get_hook_width(template=template) * 0.5)), parameters)
+
     start_gap = profile_gap
     end_gap = profile_gap
     required_offset = 0.0
@@ -115,8 +125,10 @@ def get_parallel_dimension_geometry(
 ) -> dict[str, Any]:
     target_name = dim["target"]
     line = lines[target_name]
+
     p1 = line["start"]
     p2 = line["end"]
+
     offset = resolve_value(dim.get("offset", 22), parameters)
     side = dim.get("side", "left")
     normal = get_dimension_normal(start=p1, end=p2, side=side)
@@ -200,7 +212,13 @@ def get_dimension_text_position(dim: dict, d1: Point, d2: Point, normal: Point, 
     return offset_point(mid, text_normal, gap)
 
 
-def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]], template: dict | None = None):
+def draw_parallel_dimension(
+    msp,
+    dim: dict,
+    parameters: dict[str, float],
+    lines: dict[str, dict[str, Point]],
+    template: dict | None = None,
+):
     param_name = dim["param"]
     if param_name not in parameters:
         raise ValueError(f"Missing dimension parameter: {param_name}")
@@ -215,6 +233,7 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
     d2 = geometry["d2"]
 
     attribs = get_dimension_attribs()
+
     msp.add_line(d1, d2, dxfattribs=attribs)
     msp.add_line(geometry["e1_start"], geometry["e1_end"], dxfattribs=attribs)
     msp.add_line(geometry["e2_start"], geometry["e2_end"], dxfattribs=attribs)
@@ -231,6 +250,9 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
         text_rotation = dim.get("text_rotation", 0)
 
     text_rotation += resolve_value(dim.get("text_rotation_offset", 0), parameters)
+
+    if dim.get("auto_flip_text", True):
+        text_rotation = make_text_readable(text_rotation)
 
     add_centered_text(
         msp=msp,
