@@ -187,8 +187,17 @@ def get_parallel_dimension_segments(
 
 def get_dimension_text_position(dim: dict, d1: Point, d2: Point, normal: Point, parameters: dict[str, float]) -> Point:
     gap = resolve_value(dim.get("text_gap", DIMENSION_TEXT_GAP), parameters)
+
+    text_side = dim.get("text_side", "outside")
+    if text_side == "outside":
+        text_normal = normal
+    elif text_side == "inside":
+        text_normal = (-normal[0], -normal[1])
+    else:
+        raise ValueError(f"Unknown dimension text_side: {text_side}")
+
     mid = ((d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2)
-    return offset_point(mid, normal, gap)
+    return offset_point(mid, text_normal, gap)
 
 
 def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]], template: dict | None = None):
@@ -220,6 +229,8 @@ def draw_parallel_dimension(msp, dim: dict, parameters: dict[str, float], lines:
         text_rotation = get_angle_degrees(d1, d2)
     else:
         text_rotation = dim.get("text_rotation", 0)
+
+    text_rotation += resolve_value(dim.get("text_rotation_offset", 0), parameters)
 
     add_centered_text(
         msp=msp,
