@@ -1,7 +1,7 @@
 import math
 
 from config import CAD_STYLES
-from .drawing import add_angle_tick, add_text, get_angle_tick_segment
+from .drawing import add_angle_tick, add_centered_text, get_angle_tick_segment
 from .formulas import fmt, resolve_value
 from .geometry import get_angle_degrees, get_arc_segments
 from .settings import get_dimension_attribs
@@ -114,7 +114,7 @@ def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: d
             center[1] + math.sin(mid_angle) * text_radius
         )
 
-        add_text(
+        add_centered_text(
             msp=msp,
             text=f"{fmt(parameters[mark['param']])}°",
             position=text_position,
