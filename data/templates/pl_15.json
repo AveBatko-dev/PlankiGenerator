@@ -182,45 +182,41 @@
   ],
 
   "angle_marks": [
-    {
-      "type": "between_lines",
-      "name": "angle_K1",
-      "param": "K1",
+  {
+    "type": "between_lines",
+    "name": "angle_K1",
+    "param": "K1",
 
-      "line_1": "top_vertical",
-      "line_2": "slanted",
+    "line_1": "bottom_vertical",
+    "line_2": "slanted",
 
-      "center_point": "start",
-      "line_2_point": "start",
+    "radius": 32,
+    "tick_size": 12,
+    "text_offset": 7,
 
-      "radius": 30,
-      "tick_size": 12,
-      "text_offset": 7,
+    "text_rotation": -65,
 
-      "arc_side": "other",
-      "text_rotation": -65,
+    "enabled": true
+  },
+  {
+    "type": "between_lines",
+    "name": "angle_K2",
+    "param": "K2",
 
-      "enabled": true
-    },
-    {
-  "type": "between_lines",
-  "name": "angle_K2",
-  "param": "K2",
+    "line_1": "right_horizontal",
+    "line_2": "right_slanted",
 
-  "line_1": "top_horizontal",
-  "line_2": "right_slanted",
+    "center_point": "start",
+    "line_2_point": "start",
 
-  "center_point": "end",
-  "line_2_point": "end",
+    "radius": 32,
+    "tick_size": 12,
+    "text_offset": 7,
 
-  "radius": 30,
-  "tick_size": 12,
-  "text_offset": 7,
+    "arc_side": "other",
+    "text_rotation": -20,
 
-  "arc_side": "other",
-  "text_rotation": -20,
-
-  "enabled": true
-}
-  ]
+    "enabled": true
+  }
+]
 }
