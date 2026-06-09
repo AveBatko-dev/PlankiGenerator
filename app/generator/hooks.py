@@ -44,6 +44,32 @@ def get_actual_hook_arc_points(geometry: dict[str, Any], steps: int = 24) -> lis
     return points
 
 
+def get_hook_side(hook: dict) -> str:
+    """
+    Новый нормальный формат:
+      bend_side="inner" -> старое side="right"
+      bend_side="outer" -> старое side="left"
+
+    Старый формат side="left/right" оставлен для обратной совместимости.
+    """
+    bend_side = hook.get("bend_side")
+
+    if bend_side is not None:
+        if bend_side == "inner":
+            return "right"
+        if bend_side == "outer":
+            return "left"
+
+        raise ValueError(f"Unknown hook bend_side: {bend_side}")
+
+    side = hook.get("side", "right")
+
+    if side not in ("left", "right"):
+        raise ValueError(f"Unknown hook side: {side}")
+
+    return side
+
+
 def get_single_hook_geometry(hook: dict, lines: dict[str, dict[str, Point]], template: dict) -> dict[str, Any]:
     attach_to = hook["attach_to"]
     position = hook["position"]
@@ -70,7 +96,7 @@ def get_single_hook_geometry(hook: dict, lines: dict[str, dict[str, Point]], tem
 
     if position == "start":
         base_point = line_start
-        side = hook.get("side", "right")
+        side = get_hook_side(hook)
 
         if side == "right":
             side_direction = rotate_clockwise(line_direction)
@@ -90,7 +116,7 @@ def get_single_hook_geometry(hook: dict, lines: dict[str, dict[str, Point]], tem
 
     elif position == "end":
         base_point = line_end
-        side = hook.get("side", "right")
+        side = get_hook_side(hook)
 
         if side == "right":
             side_direction = rotate_clockwise(line_direction)
@@ -197,7 +223,13 @@ def negate_vector(vector: Point) -> Point:
     return -vector[0], -vector[1]
 
 
-def get_hook_label_preferred_directions(label: str, geometry: dict[str, Any], hook: dict, template: dict, lines: dict[str, dict[str, Point]]) -> list[Point]:
+def get_hook_label_preferred_directions(
+    label: str,
+    geometry: dict[str, Any],
+    hook: dict,
+    template: dict,
+    lines: dict[str, dict[str, Point]]
+) -> list[Point]:
     fixed_direction = hook.get("label_fixed_direction")
     line_direction = geometry["line_direction"]
     side_direction = geometry["side_direction"]
@@ -215,17 +247,20 @@ def get_hook_label_preferred_directions(label: str, geometry: dict[str, Any], ho
         "line_right": rotate_clockwise(line_direction),
         "opposite_dimension": opposite_dimension,
     }
+
     if fixed_direction in manual_directions:
         first = manual_directions[fixed_direction]
         return [first, side_direction, opposite_dimension, add_vectors(first, side_direction)]
 
     fixed_side = hook.get("label_fixed_side")
+
     if fixed_side == "left":
         return [(-1, 0), side_direction, opposite_dimension]
     if fixed_side == "right":
         return [(1, 0), side_direction, opposite_dimension]
 
     normalized_label = label.strip().upper()
+
     if normalized_label == "Z1":
         primary = add_vectors(side_direction, opposite_line_direction)
         secondary = side_direction
@@ -258,12 +293,18 @@ def add_fixed_hook_label(
     hook: dict,
     template: dict,
     lines: dict[str, dict[str, Point]],
-    avoidance_lines: list[Segment] | None = None,
+    avoidance_lines: list[Segment] | None = None
 ):
     height = float(hook.get("label_height", CAD_STYLES["text"]["height"]))
     rotation = float(hook.get("label_rotation", 0))
     gap = float(hook.get("label_fixed_gap", max(10, geometry["width"] * 4)))
-    preferred_directions = get_hook_label_preferred_directions(label=label, geometry=geometry, hook=hook, template=template, lines=lines)
+    preferred_directions = get_hook_label_preferred_directions(
+        label=label,
+        geometry=geometry,
+        hook=hook,
+        template=template,
+        lines=lines
+    )
     label_obstacles = (avoidance_lines or []) + get_single_hook_segments(geometry=geometry)
 
     draw_auto_label(
@@ -278,9 +319,16 @@ def add_fixed_hook_label(
     )
 
 
-def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], template: dict, avoidance_lines: list[Segment] | None = None):
+def draw_single_hook(
+    msp,
+    hook: dict,
+    lines: dict[str, dict[str, Point]],
+    template: dict,
+    avoidance_lines: list[Segment] | None = None
+):
     geometry = get_single_hook_geometry(hook=hook, lines=lines, template=template)
     width = geometry["width"]
+
     points = [
         (geometry["p0"][0], geometry["p0"][1], 0),
         (geometry["p1"][0], geometry["p1"][1], geometry["bulge"]),
@@ -289,6 +337,7 @@ def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], templa
     ]
 
     add_rounded_profile_path(msp=msp, points=points, width=width)
+
     add_rounded_profile_path(
         msp=msp,
         points=[
@@ -299,6 +348,7 @@ def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], templa
     )
 
     label = hook.get("label")
+
     if label:
         add_fixed_hook_label(
             msp=msp,
@@ -311,17 +361,36 @@ def draw_single_hook(msp, hook: dict, lines: dict[str, dict[str, Point]], templa
         )
 
 
-def draw_hooks(msp, template: dict, lines: dict[str, dict[str, Point]], parameters: dict[str, float], avoidance_lines: list[Segment] | None = None):
+def draw_hooks(
+    msp,
+    template: dict,
+    lines: dict[str, dict[str, Point]],
+    parameters: dict[str, float],
+    avoidance_lines: list[Segment] | None = None
+):
     width = get_hook_width(template=template)
 
     for hook in template.get("hooks", []):
         hook_type = hook.get("type")
 
         if hook_type == "hook":
-            draw_single_hook(msp=msp, hook=hook, lines=lines, template=template, avoidance_lines=avoidance_lines)
+            draw_single_hook(
+                msp=msp,
+                hook=hook,
+                lines=lines,
+                template=template,
+                avoidance_lines=avoidance_lines
+            )
         elif hook_type == "line":
             start = resolve_point(hook["start"], parameters)
             end = resolve_point(hook["end"], parameters)
-            add_rounded_profile_path(msp=msp, points=[(start[0], start[1], 0), (end[0], end[1], 0)], width=width)
+            add_rounded_profile_path(
+                msp=msp,
+                points=[
+                    (start[0], start[1], 0),
+                    (end[0], end[1], 0)
+                ],
+                width=width
+            )
         else:
             raise ValueError(f"Unknown hook type: {hook_type}")

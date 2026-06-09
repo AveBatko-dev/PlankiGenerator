@@ -1,0 +1,144 @@
+{
+  "code": "pl_16",
+  "display_code": "Пл. 16",
+  "name": "Планка П-подібна з двома зовнішніми завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_top_horizontal",
+        "start": ["-A", "B"],
+        "end": [0, "B"]
+      },
+      {
+        "type": "line",
+        "name": "left_vertical",
+        "start": [0, "B"],
+        "end": [0, 0]
+      },
+      {
+        "type": "line",
+        "name": "center_horizontal",
+        "start": [0, 0],
+        "end": ["C", 0]
+      },
+      {
+        "type": "line",
+        "name": "right_vertical",
+        "start": ["C", 0],
+        "end": ["C", "B"]
+      },
+      {
+        "type": "line",
+        "name": "right_top_horizontal",
+        "start": ["C", "B"],
+        "end": ["C + A", "B"]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "left_top_horizontal",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "outer",
+      "label": "Z1",
+      "label_height": 8,
+      "label_fixed_side": "left"
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_top_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "outer",
+      "label": "Z2",
+      "label_height": 8,
+      "label_fixed_side": "right"
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A_left",
+      "param": "A",
+      "target": "left_top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A_right",
+      "param": "A",
+      "target": "right_top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+  "type": "parallel_to_line",
+  "name": "dimension_B_left",
+  "param": "B",
+  "target": "left_vertical",
+  "offset": 14,
+  "side": "right",
+  "text_rotation": 90,
+  "text_gap": 5
+},
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B_right",
+      "param": "B",
+      "target": "right_vertical",
+      "offset": 14,
+      "side": "right",
+      "text_rotation": 90,
+      "text_gap": 5
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "center_horizontal",
+      "offset": 24,
+      "side": "right",
+      "text_rotation": "auto",
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "center_horizontal",
+      "position": 0.78,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": []
+}
