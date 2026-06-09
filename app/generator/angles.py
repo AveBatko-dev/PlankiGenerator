@@ -7,16 +7,44 @@ from .geometry import get_angle_degrees, get_arc_segments
 from .settings import get_dimension_attribs
 from .types import Point, Segment
 
+
 ANGLE_TEXT_LINEWEIGHT = 40
+
+
+def make_angle_text_readable(rotation: float) -> float:
+    normalized = rotation % 360
+
+    # Если текст получается вверх ногами — переворачиваем.
+    if 90 < normalized < 270:
+        rotation += 180
+
+    return rotation % 360
+
+
+def get_angle_text_rotation(mark: dict, mid_angle_degrees: float) -> float:
+    text_rotation = mark.get("text_rotation", "auto")
+
+    # auto = текст идёт по касательной к дуге угла.
+    # Позицию текста не меняем, меняем только поворот.
+    if text_rotation == "auto":
+        tangent_rotation = mid_angle_degrees + 90
+        return make_angle_text_readable(tangent_rotation)
+
+    if text_rotation == "horizontal":
+        return 0
+
+    return make_angle_text_readable(float(text_rotation))
 
 
 def get_angle_mark_geometry(mark: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]]):
     param_name = mark["param"]
+
     if param_name not in parameters:
         raise ValueError(f"Missing angle parameter: {param_name}")
 
     line_1_name = mark["line_1"]
     line_2_name = mark["line_2"]
+
     if line_1_name not in lines:
         raise ValueError(f"Angle line not found: {line_1_name}")
     if line_2_name not in lines:
@@ -26,10 +54,12 @@ def get_angle_mark_geometry(mark: dict, parameters: dict[str, float], lines: dic
     line_2 = lines[line_2_name]
 
     center_point = mark.get("center_point", "end")
+
     if center_point not in ("start", "end"):
         raise ValueError(f"Unknown angle center_point: {center_point}")
 
     line_2_point = mark.get("line_2_point", "end")
+
     if line_2_point not in ("start", "end"):
         raise ValueError(f"Unknown angle line_2_point: {line_2_point}")
 
@@ -54,18 +84,51 @@ def get_angle_mark_geometry(mark: dict, parameters: dict[str, float], lines: dic
     return center, radius, draw_angle_1, draw_angle_2
 
 
-def get_angle_mark_segments(mark: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]]) -> list[Segment]:
-    center, radius, draw_angle_1, draw_angle_2 = get_angle_mark_geometry(mark=mark, parameters=parameters, lines=lines)
+def get_angle_mark_segments(
+    mark: dict,
+    parameters: dict[str, float],
+    lines: dict[str, dict[str, Point]]
+) -> list[Segment]:
+    center, radius, draw_angle_1, draw_angle_2 = get_angle_mark_geometry(
+        mark=mark,
+        parameters=parameters,
+        lines=lines
+    )
+
     angle_tick_size = resolve_value(mark.get("tick_size", 15), parameters)
 
     return (
-        get_arc_segments(center=center, radius=radius, start_angle=draw_angle_1, end_angle=draw_angle_2)
-        + [get_angle_tick_segment(center=center, radius=radius, angle_degrees=draw_angle_1, size=angle_tick_size)]
-        + [get_angle_tick_segment(center=center, radius=radius, angle_degrees=draw_angle_2, size=angle_tick_size)]
+        get_arc_segments(
+            center=center,
+            radius=radius,
+            start_angle=draw_angle_1,
+            end_angle=draw_angle_2
+        )
+        + [
+            get_angle_tick_segment(
+                center=center,
+                radius=radius,
+                angle_degrees=draw_angle_1,
+                size=angle_tick_size
+            )
+        ]
+        + [
+            get_angle_tick_segment(
+                center=center,
+                radius=radius,
+                angle_degrees=draw_angle_2,
+                size=angle_tick_size
+            )
+        ]
     )
 
 
-def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: dict[str, dict[str, Point]]):
+def draw_angle_marks(
+    msp,
+    template: dict,
+    parameters: dict[str, float],
+    lines: dict[str, dict[str, Point]]
+):
     for mark in template.get("angle_marks", []):
         if not mark.get("enabled", False):
             continue
@@ -114,11 +177,16 @@ def draw_angle_marks(msp, template: dict, parameters: dict[str, float], lines: d
             center[1] + math.sin(mid_angle) * text_radius
         )
 
+        text_rotation = get_angle_text_rotation(
+            mark=mark,
+            mid_angle_degrees=mid_angle_degrees
+        )
+
         add_centered_text(
             msp=msp,
             text=f"{fmt(parameters[mark['param']])}°",
             position=text_position,
             height=mark.get("text_height", CAD_STYLES["text"]["height"]),
-            rotation=mark.get("text_rotation", 0),
+            rotation=text_rotation,
             lineweight=mark.get("text_lineweight", ANGLE_TEXT_LINEWEIGHT),
         )

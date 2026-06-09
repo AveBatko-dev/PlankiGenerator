@@ -79,29 +79,29 @@
   },
 
   "hooks": [
-  {
-    "type": "hook",
-    "name": "bottom_hook_z1",
-    "attach_to": "bottom_vertical",
-    "position": "start",
-    "length": 18,
-    "angle": 90,
-    "side": "left",
-    "label": "Z1",
-    "label_height": 8
-  },
-  {
-    "type": "hook",
-    "name": "right_hook_z2",
-    "attach_to": "right_horizontal",
-    "position": "end",
-    "length": 18,
-    "angle": 90,
-    "side": "left",
-    "label": "Z2",
-    "label_height": 8
-  }
-],
+    {
+      "type": "hook",
+      "name": "bottom_hook_z1",
+      "attach_to": "bottom_vertical",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "side": "left",
+      "label": "Z1",
+      "label_height": 8
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_horizontal",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "side": "left",
+      "label": "Z2",
+      "label_height": 8
+    }
+  ],
 
   "dimensions": [
     {
@@ -145,16 +145,16 @@
       "text_rotation": "auto"
     },
     {
-  "type": "parallel_to_line",
-  "name": "dimension_E",
-  "param": "E",
-  "target": "right_slanted",
-  "offset": 18,
-  "side": "right",
-  "text_rotation": "auto",
-  "text_side": "inside",
-  "text_gap": 5
-},
+      "type": "parallel_to_line",
+      "name": "dimension_E",
+      "param": "E",
+      "target": "right_slanted",
+      "offset": 18,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "inside",
+      "text_gap": 5
+    },
     {
       "type": "parallel_to_line",
       "name": "dimension_F",
@@ -174,7 +174,7 @@
       "name": "thickness_marker",
       "target": "top_vertical",
       "position": 0.65,
-      "side": "left",
+      "side": "right",
       "height": 12,
       "depth": 10,
       "offset": 0.5
@@ -182,41 +182,41 @@
   ],
 
   "angle_marks": [
-  {
-    "type": "between_lines",
-    "name": "angle_K1",
-    "param": "K1",
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
 
-    "line_1": "bottom_vertical",
-    "line_2": "slanted",
+      "line_1": "bottom_vertical",
+      "line_2": "slanted",
 
-    "radius": 32,
-    "tick_size": 12,
-    "text_offset": 7,
+      "radius": 32,
+      "tick_size": 12,
+      "text_offset": 7,
 
-    "text_rotation": -65,
+      "text_rotation": "auto",
 
-    "enabled": true
-  },
-  {
-    "type": "between_lines",
-    "name": "angle_K2",
-    "param": "K2",
+      "enabled": true
+    },
+    {
+      "type": "between_lines",
+      "name": "angle_K2",
+      "param": "K2",
 
-    "line_1": "right_horizontal",
-    "line_2": "right_slanted",
+      "line_1": "right_horizontal",
+      "line_2": "right_slanted",
 
-    "center_point": "start",
-    "line_2_point": "start",
+      "center_point": "start",
+      "line_2_point": "start",
 
-    "radius": 32,
-    "tick_size": 12,
-    "text_offset": 7,
+      "radius": 32,
+      "tick_size": 12,
+      "text_offset": 7,
 
-    "arc_side": "other",
-    "text_rotation": -20,
+      "arc_side": "other",
+      "text_rotation": "auto",
 
-    "enabled": true
-  }
-]
+      "enabled": true
+    }
+  ]
 }
