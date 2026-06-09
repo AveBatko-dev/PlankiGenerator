@@ -1,0 +1,226 @@
+{
+  "code": "pl_15",
+  "display_code": "Пл. 15",
+  "name": "Планка з двома перегинами вгору",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "bottom_vertical",
+        "start": [0, 0],
+        "end": [0, "A"]
+      },
+      {
+        "type": "line",
+        "name": "slanted",
+        "start": [0, "A"],
+        "end": [
+          "B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_vertical",
+        "start": [
+          "B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1))"
+        ],
+        "end": [
+          "B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1)) + C"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_horizontal",
+        "start": [
+          "B*sin(radians(180-K1))",
+          "A + B*cos(radians(180-K1)) + C"
+        ],
+        "end": [
+          "B*sin(radians(180-K1)) + D",
+          "A + B*cos(radians(180-K1)) + C"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_slanted",
+        "start": [
+          "B*sin(radians(180-K1)) + D",
+          "A + B*cos(radians(180-K1)) + C"
+        ],
+        "end": [
+          "B*sin(radians(180-K1)) + D + E*cos(radians(180-K2))",
+          "A + B*cos(radians(180-K1)) + C + E*sin(radians(180-K2))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_horizontal",
+        "start": [
+          "B*sin(radians(180-K1)) + D + E*cos(radians(180-K2))",
+          "A + B*cos(radians(180-K1)) + C + E*sin(radians(180-K2))"
+        ],
+        "end": [
+          "B*sin(radians(180-K1)) + D + E*cos(radians(180-K2)) + F",
+          "A + B*cos(radians(180-K1)) + C + E*sin(radians(180-K2))"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+  {
+    "type": "hook",
+    "name": "bottom_hook_z1",
+    "attach_to": "bottom_vertical",
+    "position": "start",
+    "length": 18,
+    "angle": 90,
+    "side": "left",
+    "label": "Z1",
+    "label_height": 8
+  },
+  {
+    "type": "hook",
+    "name": "right_hook_z2",
+    "attach_to": "right_horizontal",
+    "position": "end",
+    "length": 18,
+    "angle": 90,
+    "side": "left",
+    "label": "Z2",
+    "label_height": 8
+  }
+],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "bottom_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "slanted",
+      "offset": 18,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "inside",
+      "text_gap": 5
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "top_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto"
+    },
+    {
+  "type": "parallel_to_line",
+  "name": "dimension_E",
+  "param": "E",
+  "target": "right_slanted",
+  "offset": 18,
+  "side": "right",
+  "text_rotation": "auto",
+  "text_side": "inside",
+  "text_gap": 5
+},
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_F",
+      "param": "F",
+      "target": "right_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "top_vertical",
+      "position": 0.65,
+      "side": "left",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "top_vertical",
+      "line_2": "slanted",
+
+      "center_point": "start",
+      "line_2_point": "start",
+
+      "radius": 30,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "arc_side": "other",
+      "text_rotation": -65,
+
+      "enabled": true
+    },
+    {
+  "type": "between_lines",
+  "name": "angle_K2",
+  "param": "K2",
+
+  "line_1": "top_horizontal",
+  "line_2": "right_slanted",
+
+  "center_point": "end",
+  "line_2_point": "end",
+
+  "radius": 30,
+  "tick_size": 12,
+  "text_offset": 7,
+
+  "arc_side": "other",
+  "text_rotation": -20,
+
+  "enabled": true
+}
+  ]
+}
