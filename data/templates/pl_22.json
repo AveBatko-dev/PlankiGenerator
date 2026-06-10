@@ -1,0 +1,115 @@
+{
+  "code": "pl_22",
+  "display_code": "Пл. 22",
+  "name": "Планка угловая симметричная с двумя завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_slanted",
+        "start": [
+          "-A*sin(radians(K1/2))",
+          "-A*cos(radians(K1/2))"
+        ],
+        "end": [0, 0]
+      },
+      {
+        "type": "line",
+        "name": "right_slanted",
+        "start": [0, 0],
+        "end": [
+          "A*sin(radians(K1/2))",
+          "-A*cos(radians(K1/2))"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "left_slanted",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "outer",
+      "label": "Z1",
+      "label_height": 8,
+      "label_fixed_side": "left"
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_slanted",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "outer",
+      "label": "Z2",
+      "label_height": 8,
+      "label_fixed_side": "right"
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A_left",
+      "param": "A",
+      "target": "left_slanted",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A_right",
+      "param": "A",
+      "target": "right_slanted",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "left_slanted",
+      "position": 0.42,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+      "line_1": "left_slanted",
+      "line_2": "right_slanted",
+      "radius": 24,
+      "tick_size": 12,
+      "text_offset": 7,
+      "text_rotation": "horizontal",
+      "enabled": true
+    }
+  ]
+}
