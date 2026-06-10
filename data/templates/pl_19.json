@@ -1,7 +1,7 @@
 {
-  "code": "pl_18",
-  "display_code": "Пл. 18",
-  "name": "Планка зі зміщенням, перегином та двома завальцовками",
+  "code": "pl_19",
+  "display_code": "Пл. 19",
+  "name": "Планка з похилим підйомом, уступом та двома завальцовками",
 
   "defaults": {
     "profile_width": 3,
@@ -20,35 +20,47 @@
       },
       {
         "type": "line",
-        "name": "left_vertical",
+        "name": "left_slanted",
         "start": [0, 0],
-        "end": [0, "B"]
+        "end": [
+          "B*cos(radians(180-K1))",
+          "B*sin(radians(180-K1))"
+        ]
       },
       {
         "type": "line",
         "name": "top_horizontal",
-        "start": [0, "B"],
-        "end": ["C", "B"]
+        "start": [
+          "B*cos(radians(180-K1))",
+          "B*sin(radians(180-K1))"
+        ],
+        "end": [
+          "B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1))"
+        ]
       },
       {
         "type": "line",
-        "name": "right_slanted",
-        "start": ["C", "B"],
+        "name": "right_vertical",
+        "start": [
+          "B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1))"
+        ],
         "end": [
-          "C + D*cos(radians(180-K1))",
-          "B - D*sin(radians(180-K1))"
+          "B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1)) - D"
         ]
       },
       {
         "type": "line",
         "name": "right_horizontal",
         "start": [
-          "C + D*cos(radians(180-K1))",
-          "B - D*sin(radians(180-K1))"
+          "B*cos(radians(180-K1)) + C",
+          "B*sin(radians(180-K1)) - D"
         ],
         "end": [
-          "C + D*cos(radians(180-K1)) + E",
-          "B - D*sin(radians(180-K1))"
+          "B*cos(radians(180-K1)) + C + E",
+          "B*sin(radians(180-K1)) - D"
         ]
       }
     ]
@@ -97,10 +109,12 @@
       "type": "parallel_to_line",
       "name": "dimension_B",
       "param": "B",
-      "target": "left_vertical",
+      "target": "left_slanted",
       "offset": 22,
       "side": "left",
-      "text_rotation": 90
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5
     },
     {
       "type": "parallel_to_line",
@@ -115,11 +129,10 @@
       "type": "parallel_to_line",
       "name": "dimension_D",
       "param": "D",
-      "target": "right_slanted",
+      "target": "right_vertical",
       "offset": 18,
       "side": "left",
-      "text_rotation": "auto",
-      "text_side": "outside",
+      "text_rotation": 90,
       "text_gap": 5
     },
     {
@@ -139,8 +152,8 @@
     {
       "type": "thickness_triangle",
       "name": "thickness_marker",
-      "target": "left_vertical",
-      "position": 0.55,
+      "target": "top_horizontal",
+      "position": 0.45,
       "side": "left",
       "height": 12,
       "depth": 10,
@@ -154,8 +167,8 @@
       "name": "angle_K1",
       "param": "K1",
 
-      "line_1": "top_horizontal",
-      "line_2": "right_slanted",
+      "line_1": "left_slanted",
+      "line_2": "top_horizontal",
 
       "radius": 32,
       "tick_size": 12,
