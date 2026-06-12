@@ -48,16 +48,6 @@
     ]
   },
 
-  "growth_lines": [
-    {
-      "name": "bottom_slanted_extension",
-      "source": "bottom_slanted",
-      "from": "end",
-      "direction": "same",
-      "length": "same"
-    }
-  ],
-
   "hooks": [
     {
       "type": "hook",
@@ -66,7 +56,7 @@
       "position": "end",
       "length": 18,
       "angle": 90,
-      "bend_side": "outer",
+      "bend_side": "inner",
       "label": "Z1",
       "label_height": 8,
       "label_fixed_side": "right"
@@ -129,26 +119,29 @@
   ],
 
   "angle_marks": [
-  {
-    "type": "between_lines",
-    "name": "angle_K1",
-    "param": "K1",
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
 
-    "line_1": "vertical_main",
-    "line_2": "bottom_slanted_extension",
+      "line_1": "vertical_main",
+      "line_2": "bottom_slanted",
 
-    "center_point": "end",
-    "line_2_point": "end",
-    "line_2_mode": "parallel",
+      "center_point": "end",
+      "line_2_point": "end",
 
-    "radius": "B + 42.5",
-    "tick_size": 12,
-    "text_offset": 7,
+      "radius": "B + 25",
+      "tick_size": 12,
+      "text_offset": 7,
 
-    "arc_side": "other",
-    "text_rotation": "auto",
+      "arc_side": "other",
+      "text_rotation": "auto",
 
-    "enabled": true
-  }
-]
+      "auto_extensions": true,
+      "extension_lines": ["line_2"],
+      "extension_overhang": 10,
+
+      "enabled": true
+    }
+  ]
 }

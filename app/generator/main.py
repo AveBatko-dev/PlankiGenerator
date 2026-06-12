@@ -3,7 +3,6 @@ from pathlib import Path
 from .angles import draw_angle_marks
 from .dimensions import draw_dimensions
 from .drawing import setup_document
-from .growth_lines import build_growth_lines, draw_growth_lines
 from .hooks import draw_hooks
 from .markers import draw_markers
 from .obstacles import build_obstacle_lines
@@ -16,14 +15,6 @@ def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]
 
     lines = build_named_lines(template=template, parameters=parameters)
 
-    growth_lines = build_growth_lines(
-        template=template,
-        parameters=parameters,
-        lines=lines
-    )
-
-    lines.update(growth_lines)
-
     obstacle_lines = build_obstacle_lines(
         template=template,
         parameters=parameters,
@@ -35,13 +26,6 @@ def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]
         template=template,
         lines=lines,
         parameters=parameters
-    )
-
-    draw_growth_lines(
-        msp=msp,
-        template=template,
-        parameters=parameters,
-        lines=lines
     )
 
     draw_hooks(

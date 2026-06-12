@@ -40,10 +40,18 @@ def get_angle_text(mark: dict, parameters: dict[str, float]) -> str:
     return f"{fmt(parameters[mark['param']])}°"
 
 
+def get_distance(first: Point, second: Point) -> float:
+    dx = second[0] - first[0]
+    dy = second[1] - first[1]
+    return (dx ** 2 + dy ** 2) ** 0.5
+
+
 def get_direction_angle(direction: Point) -> float:
     angle = math.degrees(math.atan2(direction[1], direction[0]))
+
     if angle < 0:
         angle += 360
+
     return angle
 
 
@@ -63,31 +71,50 @@ def get_line_direction_by_selected_point(
     return normalize(get_vector(other, selected))
 
 
-def get_line_angle(
+def get_line_ray_data(
     line: dict[str, Point],
     center: Point,
     selected_point_name: str,
     mode: str
-) -> float:
+) -> dict:
+    if selected_point_name not in ("start", "end"):
+        raise ValueError(f"Unknown line point: {selected_point_name}")
+
+    selected_point = line[selected_point_name]
+
     if mode == "from_center":
-        ray_point = line[selected_point_name]
-        return get_angle_degrees(center, ray_point)
+        direction = normalize(get_vector(center, selected_point))
+        angle = get_angle_degrees(center, selected_point)
+
+        return {
+            "selected_point": selected_point,
+            "direction": direction,
+            "angle": angle,
+            "selected_distance": get_distance(center, selected_point)
+        }
 
     if mode == "parallel":
         direction = get_line_direction_by_selected_point(
             line=line,
             selected_point_name=selected_point_name
         )
-        return get_direction_angle(direction)
+        angle = get_direction_angle(direction)
+
+        return {
+            "selected_point": selected_point,
+            "direction": direction,
+            "angle": angle,
+            "selected_distance": get_distance(center, selected_point)
+        }
 
     raise ValueError(f"Unknown angle line mode: {mode}")
 
 
-def get_angle_mark_geometry(
+def get_angle_mark_data(
     mark: dict,
     parameters: dict[str, float],
     lines: dict[str, dict[str, Point]]
-):
+) -> dict:
     param_name = mark["param"]
 
     if param_name not in parameters:
@@ -118,24 +145,30 @@ def get_angle_mark_geometry(
     center = line_1[center_point]
     radius = resolve_value(mark.get("radius", 28), parameters)
 
+    line_1_point = mark.get(
+        "line_1_point",
+        "start" if center_point == "end" else "end"
+    )
+
     line_1_mode = mark.get("line_1_mode", "from_center")
     line_2_mode = mark.get("line_2_mode", "from_center")
 
-    line_1_point = "start" if center_point == "end" else "end"
-
-    angle_1 = get_line_angle(
+    line_1_ray = get_line_ray_data(
         line=line_1,
         center=center,
         selected_point_name=line_1_point,
         mode=line_1_mode
     )
 
-    angle_2 = get_line_angle(
+    line_2_ray = get_line_ray_data(
         line=line_2,
         center=center,
         selected_point_name=line_2_point,
         mode=line_2_mode
     )
+
+    angle_1 = line_1_ray["angle"]
+    angle_2 = line_2_ray["angle"]
 
     draw_angle_1 = angle_1
     draw_angle_2 = angle_2
@@ -146,7 +179,94 @@ def get_angle_mark_geometry(
     if mark.get("arc_side") == "other":
         draw_angle_1, draw_angle_2 = draw_angle_2, draw_angle_1 + 360
 
-    return center, radius, draw_angle_1, draw_angle_2
+    return {
+        "center": center,
+        "radius": radius,
+        "draw_angle_1": draw_angle_1,
+        "draw_angle_2": draw_angle_2,
+        "line_1_ray": line_1_ray,
+        "line_2_ray": line_2_ray
+    }
+
+
+def get_angle_mark_geometry(
+    mark: dict,
+    parameters: dict[str, float],
+    lines: dict[str, dict[str, Point]]
+):
+    data = get_angle_mark_data(
+        mark=mark,
+        parameters=parameters,
+        lines=lines
+    )
+
+    return (
+        data["center"],
+        data["radius"],
+        data["draw_angle_1"],
+        data["draw_angle_2"]
+    )
+
+
+def get_angle_extension_segments_from_data(
+    mark: dict,
+    parameters: dict[str, float],
+    data: dict
+) -> list[Segment]:
+    if not mark.get("auto_extensions", False):
+        return []
+
+    extension_lines = mark.get("extension_lines", ["line_1", "line_2"])
+    extension_overhang = resolve_value(mark.get("extension_overhang", 10), parameters)
+    tick_size = resolve_value(mark.get("tick_size", 15), parameters)
+
+    center = data["center"]
+    radius = data["radius"]
+
+    needed_distance = radius + max(extension_overhang, tick_size * 0.8)
+
+    segments: list[Segment] = []
+
+    for line_key in extension_lines:
+        if line_key not in ("line_1", "line_2"):
+            raise ValueError(f"Unknown angle extension line: {line_key}")
+
+        ray = data[f"{line_key}_ray"]
+        selected_distance = ray["selected_distance"]
+
+        if selected_distance >= needed_distance:
+            continue
+
+        direction = ray["direction"]
+        selected_point = ray["selected_point"]
+
+        extension_end = (
+            center[0] + direction[0] * needed_distance,
+            center[1] + direction[1] * needed_distance
+        )
+
+        if get_distance(selected_point, extension_end) > 0.001:
+            segments.append((selected_point, extension_end))
+
+    return segments
+
+
+def get_angle_extension_segments(
+    mark: dict,
+    parameters: dict[str, float],
+    lines: dict[str, dict[str, Point]]
+) -> list[Segment]:
+    data = get_angle_mark_data(
+        mark=mark,
+        parameters=parameters,
+        lines=lines
+    )
+
+    return get_angle_extension_segments_from_data(
+        mark=mark,
+        parameters=parameters,
+        data=data
+    )
 
 
 def get_angle_mark_segments(
@@ -154,16 +274,26 @@ def get_angle_mark_segments(
     parameters: dict[str, float],
     lines: dict[str, dict[str, Point]]
 ) -> list[Segment]:
-    center, radius, draw_angle_1, draw_angle_2 = get_angle_mark_geometry(
+    data = get_angle_mark_data(
         mark=mark,
         parameters=parameters,
         lines=lines
     )
 
+    center = data["center"]
+    radius = data["radius"]
+    draw_angle_1 = data["draw_angle_1"]
+    draw_angle_2 = data["draw_angle_2"]
+
     angle_tick_size = resolve_value(mark.get("tick_size", 15), parameters)
 
     return (
-        get_arc_segments(
+        get_angle_extension_segments_from_data(
+            mark=mark,
+            parameters=parameters,
+            data=data
+        )
+        + get_arc_segments(
             center=center,
             radius=radius,
             start_angle=draw_angle_1,
@@ -188,6 +318,24 @@ def get_angle_mark_segments(
     )
 
 
+def draw_angle_extensions(
+    msp,
+    mark: dict,
+    parameters: dict[str, float],
+    data: dict
+):
+    for start, end in get_angle_extension_segments_from_data(
+        mark=mark,
+        parameters=parameters,
+        data=data
+    ):
+        msp.add_line(
+            start,
+            end,
+            dxfattribs=get_dimension_attribs()
+        )
+
+
 def draw_angle_marks(
     msp,
     template: dict,
@@ -198,10 +346,22 @@ def draw_angle_marks(
         if not mark.get("enabled", False):
             continue
 
-        center, radius, draw_angle_1, draw_angle_2 = get_angle_mark_geometry(
+        data = get_angle_mark_data(
             mark=mark,
             parameters=parameters,
             lines=lines
+        )
+
+        center = data["center"]
+        radius = data["radius"]
+        draw_angle_1 = data["draw_angle_1"]
+        draw_angle_2 = data["draw_angle_2"]
+
+        draw_angle_extensions(
+            msp=msp,
+            mark=mark,
+            parameters=parameters,
+            data=data
         )
 
         attribs = get_dimension_attribs()
