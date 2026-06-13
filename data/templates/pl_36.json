@@ -1,0 +1,128 @@
+{
+  "code": "pl_36",
+  "display_code": "Пл. 36",
+  "name": "Трапецієподібна планка з рівними боковими сторонами",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_slanted",
+        "start": [0, 0],
+        "end": [
+          "(A - B) / 2",
+          "((A - B) / 2) * tan(radians(K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_horizontal",
+        "start": [
+          "(A - B) / 2",
+          "((A - B) / 2) * tan(radians(K1))"
+        ],
+        "end": [
+          "(A + B) / 2",
+          "((A - B) / 2) * tan(radians(K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_slanted",
+        "start": [
+          "(A + B) / 2",
+          "((A - B) / 2) * tan(radians(K1))"
+        ],
+        "end": [
+          "A",
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "bottom_horizontal",
+        "start": [
+          "A",
+          0
+        ],
+        "end": [
+          0,
+          0
+        ]
+      }
+    ]
+  },
+
+  "hooks": [],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "bottom_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "left_slanted",
+      "offset": 24,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "bottom_horizontal",
+      "line_2": "right_slanted",
+
+      "center_point": "start",
+      "line_2_point": "start",
+
+      "radius": 24,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "arc_side": "other",
+      "text_rotation": "auto",
+
+      "enabled": true
+    }
+  ]
+}
