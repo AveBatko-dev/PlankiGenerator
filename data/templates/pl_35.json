@@ -1,0 +1,205 @@
+{
+  "code": "pl_35",
+  "display_code": "Пл. 35",
+  "name": "Планка з верхньою горизонтальною ділянкою, правою вертикальною стінкою та двома похилими завальцовками",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "upper_left_slanted",
+        "start": [
+          "D*cos(radians(K2))",
+          "D*sin(radians(K2))"
+        ],
+        "end": [
+          0,
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_horizontal",
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          "C",
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_vertical",
+        "start": [
+          "C",
+          0
+        ],
+        "end": [
+          "C",
+          "-B"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "bottom_slanted",
+        "start": [
+          "C",
+          "-B"
+        ],
+        "end": [
+          "C + A*cos(radians(90 + K1))",
+          "-B + A*sin(radians(90 + K1))"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "upper_hook_z2",
+      "attach_to": "upper_left_slanted",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "inner",
+      "label": "Z2",
+      "label_height": 8,
+      "label_fixed_global_side": "left",
+      "label_placement_mode": "strict",
+      "label_fixed_gap": 8
+    },
+    {
+      "type": "hook",
+      "name": "bottom_hook_z1",
+      "attach_to": "bottom_slanted",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "inner",
+      "label": "Z1",
+      "label_height": 8,
+      "label_fixed_direction": "opposite_dimension",
+      "label_dimension_fallback": "opposite_hook_side",
+      "label_placement_mode": "strict",
+      "label_fixed_gap": 8
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "upper_left_slanted",
+      "offset": 24,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "top_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "right_vertical",
+      "offset": 28,
+      "side": "left",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "bottom_slanted",
+      "offset": 24,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "top_horizontal",
+      "auto_place": false,
+      "position": 0.55,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K2",
+      "param": "K2",
+
+      "line_1": "top_horizontal",
+      "line_2": "upper_left_slanted",
+
+      "center_point": "start",
+      "line_2_point": "start",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "text_rotation": "auto",
+
+      "enabled": true
+    },
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "right_vertical",
+      "line_2": "bottom_slanted",
+
+      "center_point": "end",
+      "line_2_point": "end",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "text_rotation": "auto",
+
+      "enabled": true
+    }
+  ]
+}
