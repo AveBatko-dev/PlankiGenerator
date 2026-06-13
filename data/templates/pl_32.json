@@ -113,8 +113,8 @@
       "bend_side": "inner",
       "label": "Z1",
       "label_height": 8,
-      "label_fixed_side": "left",
-      "label_fixed_gap": 14
+      "label_fixed_direction": "opposite_dimension",
+      "label_fixed_gap": 8
     },
     {
       "type": "hook",
@@ -201,10 +201,10 @@
     {
       "type": "thickness_triangle",
       "name": "thickness_marker",
-      "target": "top_slanted",
+      "target": "left_vertical",
       "auto_place": false,
-      "position": 0.45,
-      "side": "right",
+      "position": 0.55,
+      "side": "left",
       "height": 12,
       "depth": 10,
       "offset": 0.5
@@ -223,12 +223,28 @@
       "center_point": "start",
       "line_2_point": "start",
 
-      "radius": 28,
+      "radius_mode": "near_extension_tip",
+      "radius_from_line": "line_2",
+
+      "extension_length": 16,
+      "max_extension_length": 30,
+      "extension_step": 2,
+
+      "selected_point_gap": 4,
+      "obstacle_clearance": 4,
+
       "tick_size": 12,
       "text_offset": 7,
 
       "arc_side": "other",
       "text_rotation": "auto",
+
+      "auto_extensions": true,
+      "extension_lines": ["line_2"],
+
+      "auto_radius_clearance": true,
+      "avoid_dimension_extensions": false,
+      "check_text_clearance": true,
 
       "enabled": true
     },
