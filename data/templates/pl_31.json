@@ -1,0 +1,170 @@
+{
+  "code": "pl_31",
+  "display_code": "Пл. 31",
+  "name": "Планка з лівим вертикальним відводом, косим переходом, горизонтальною ділянкою та паличкою Z1",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_vertical",
+        "start": [
+          0,
+          "C*sin(radians(45)) + D"
+        ],
+        "end": [
+          0,
+          "C*sin(radians(45))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "left_slanted",
+        "start": [
+          0,
+          "C*sin(radians(45))"
+        ],
+        "end": [
+          "C*cos(radians(45))",
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "middle_horizontal",
+        "start": [
+          "C*cos(radians(45))",
+          0
+        ],
+        "end": [
+          "C*cos(radians(45)) + B",
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_slanted",
+        "start": [
+          "C*cos(radians(45)) + B",
+          0
+        ],
+        "end": [
+          "C*cos(radians(45)) + B + A*cos(radians(180-K1))",
+          "-A*sin(radians(180-K1))"
+        ]
+      },
+      {
+  "type": "line",
+  "name": "z1_stick",
+  "start": [
+    "C*cos(radians(45)) + B + A*cos(radians(180-K1))",
+    "-A*sin(radians(180-K1))"
+  ],
+  "end": [
+    "C*cos(radians(45)) + B + A*cos(radians(180-K1)) + 24*cos(radians(140))",
+    "-A*sin(radians(180-K1)) + 24*sin(radians(140))"
+  ],
+  "label": "Z1",
+  "label_position": "end",
+  "label_side": "left",
+  "label_side_offset": 22,
+  "label_along_offset": 0,
+  "label_height": 8
+}
+    ]
+  },
+
+  "hooks": [],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "left_vertical",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "left_slanted",
+      "offset": 24,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "middle_horizontal",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "right_slanted",
+      "offset": 24,
+      "side": "left",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+  {
+    "type": "thickness_triangle",
+    "name": "thickness_marker",
+    "target": "middle_horizontal",
+    "auto_place": false,
+    "position": 0.5,
+    "side": "left",
+    "height": 12,
+    "depth": 10,
+    "offset": 0.5
+  }
+],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "middle_horizontal",
+      "line_2": "right_slanted",
+
+      "center_point": "end",
+      "line_2_point": "end",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "text_rotation": "auto",
+
+      "enabled": true
+    }
+  ]
+}
