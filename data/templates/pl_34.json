@@ -1,0 +1,170 @@
+{
+  "code": "pl_34",
+  "display_code": "Пл. 34",
+  "name": "Планка з нижньою горизонтальною ділянкою, косим підйомом, вертикальним відводом та завальцовкою Z1",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "top_vertical",
+        "start": [
+          "C*cos(radians(K1-90))",
+          "C*sin(radians(K1-90)) + D"
+        ],
+        "end": [
+          "C*cos(radians(K1-90))",
+          "C*sin(radians(K1-90))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "main_slanted",
+        "start": [
+          "C*cos(radians(K1-90))",
+          "C*sin(radians(K1-90))"
+        ],
+        "end": [
+          0,
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "bottom_horizontal",
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          "B",
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_vertical",
+        "start": [
+          "B",
+          0
+        ],
+        "end": [
+          "B",
+          "A"
+        ]
+      }
+    ]
+  },
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "top_hook_z1",
+      "attach_to": "top_vertical",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "outer",
+      "label": "Z1",
+      "label_height": 8,
+      "label_fixed_global_side": "left",
+      "label_placement_mode": "strict",
+      "label_fixed_gap": 8
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "top_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "main_slanted",
+      "offset": 24,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "bottom_horizontal",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "right_vertical",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "main_slanted",
+      "auto_place": false,
+      "position": 0.5,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "top_vertical",
+      "line_2": "main_slanted",
+
+      "center_point": "end",
+      "line_2_point": "end",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "text_rotation": "auto",
+
+      "enabled": true
+    }
+  ]
+}
