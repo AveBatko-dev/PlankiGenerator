@@ -2,90 +2,380 @@
   {
     "template_code": "pl_1",
     "parameters": {
-      "A": 0,
-      "B": 0
+      "A": 100,
+      "B": 40
     }
   },
   {
     "template_code": "pl_2",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "C": 0
+      "A": 100,
+      "B": 60,
+      "C": 40
     }
   },
   {
     "template_code": "pl_3",
     "parameters": {
-      "A": 0,
-      "B": 0
+      "A": 100,
+      "B": 45
     }
   },
   {
     "template_code": "pl_4",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "C": 0,
-      "K1": 0
+      "A": 100,
+      "B": 60,
+      "C": 40,
+      "K1": 120
     }
   },
   {
     "template_code": "pl_5",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "K1": 0
+      "A": 80,
+      "B": 45,
+      "K1": 120
     }
   },
   {
     "template_code": "pl_6",
     "parameters": {
-      "A": 0,
-      "K1": 0
+      "A": 80,
+      "K1": 120
     }
   },
   {
     "template_code": "pl_7",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "K1": 0
+      "A": 90,
+      "B": 45,
+      "K1": 120
     }
   },
   {
     "template_code": "pl_8",
     "parameters": {
-      "A": 0
+      "A": 100
     }
   },
   {
     "template_code": "pl_9",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "C": 0
+      "A": 100,
+      "B": 50,
+      "C": 40
     }
   },
   {
     "template_code": "pl_10",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "C": 0,
-      "D": 0,
-      "E": 0,
-      "K1": 0,
-      "K2": 0
+      "A": 90,
+      "B": 45,
+      "C": 100,
+      "D": 60,
+      "E": 40,
+      "K1": 25,
+      "K2": 120
     }
   },
   {
     "template_code": "pl_11",
     "parameters": {
-      "A": 0,
-      "B": 0,
-      "C": 0,
-      "K1": 0
+      "A": 100,
+      "B": 45,
+      "C": 90,
+      "K1": 120
+    }
+  },
+  {
+    "template_code": "pl_12",
+    "parameters": {
+      "A": 60,
+      "B": 55,
+      "C": 45,
+      "D": 80,
+      "K1": 120
+    }
+  },
+  {
+    "template_code": "pl_13",
+    "parameters": {
+      "A": 60,
+      "B": 55,
+      "C": 45,
+      "D": 80,
+      "E": 45,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_14",
+    "parameters": {
+      "A": 60,
+      "B": 55,
+      "C": 45,
+      "D": 80,
+      "K1": 120
+    }
+  },
+  {
+    "template_code": "pl_15",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_16",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_17",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_18",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_19",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_20",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_21",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_22",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_23",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_24",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 55,
+      "F": 60,
+      "K1": 120,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_25",
+    "parameters": {
+      "A": 90,
+      "B": 45,
+      "C": 100,
+      "C_PLUS_20": 120,
+      "D": 70,
+      "K1": 25
+    }
+  },
+  {
+    "template_code": "pl_26",
+    "parameters": {
+      "A": 90,
+      "B": 45,
+      "C": 100,
+      "D": 110,
+      "E": 30,
+      "F": 40,
+      "K1": 25
+    }
+  },
+  {
+    "template_code": "pl_27",
+    "parameters": {
+      "A": 100,
+      "B": 120,
+      "C": 110,
+      "D": 30,
+      "E": 40
+    }
+  },
+  {
+    "template_code": "pl_28",
+    "parameters": {
+      "A": 90,
+      "B": 45,
+      "C": 100,
+      "D": 110,
+      "E": 55,
+      "K1": 25,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_29",
+    "parameters": {
+      "A": 100,
+      "B": 120,
+      "C": 110,
+      "D": 55,
+      "K1": 90,
+      "K2": 120
+    }
+  },
+  {
+    "template_code": "pl_30",
+    "parameters": {
+      "A": 45,
+      "B": 90,
+      "C": 110,
+      "D": 85,
+      "K1": 45,
+      "K2": 95
+    }
+  },
+  {
+    "template_code": "pl_31",
+    "parameters": {
+      "A": 55,
+      "B": 100,
+      "C": 45,
+      "D": 60,
+      "K1": 120
+    }
+  },
+  {
+    "template_code": "pl_32",
+    "parameters": {
+      "A": 100,
+      "B": 50,
+      "C": 45,
+      "D": 80,
+      "E": 100,
+      "K1": 45,
+      "K2": 95
+    }
+  },
+  {
+    "template_code": "pl_33",
+    "parameters": {
+      "A": 80,
+      "B": 120,
+      "K1": 120
+    }
+  },
+  {
+    "template_code": "pl_34",
+    "parameters": {
+      "A": 20,
+      "B": 100,
+      "C": 80,
+      "D": 60,
+      "K1": 150
+    }
+  },
+  {
+    "template_code": "pl_35",
+    "parameters": {
+      "A": 55,
+      "B": 100,
+      "C": 130,
+      "D": 45,
+      "K1": 115,
+      "K2": 135
+    }
+  },
+  {
+    "template_code": "pl_36",
+    "parameters": {
+      "A": 57,
+      "B": 23,
+      "C": 42,
+      "K1": 67
     }
   }
 ]
