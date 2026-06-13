@@ -66,18 +66,31 @@ def add_profile_line_label(msp, element: dict, start: Point, end: Point, paramet
     )
 
 
+def build_line(element: dict, parameters: dict[str, float]) -> dict[str, Point]:
+    return {
+        "start": resolve_point(element["start"], parameters),
+        "end": resolve_point(element["end"], parameters)
+    }
+
+
 def build_named_lines(template: dict, parameters: dict[str, float]) -> dict[str, dict[str, Point]]:
     profile = template["profile"]
     if profile.get("type") != "connected_path":
         raise ValueError("Only profile.type='connected_path' is supported")
 
     lines = {}
+
     for element in profile["elements"]:
         if element["type"] != "line":
             raise ValueError(f"Unsupported profile element type: {element['type']}")
 
-        name = element["name"]
-        lines[name] = {"start": resolve_point(element["start"], parameters), "end": resolve_point(element["end"], parameters)}
+        lines[element["name"]] = build_line(element=element, parameters=parameters)
+
+    for element in template.get("reference_lines", []):
+        if element["type"] != "line":
+            raise ValueError(f"Unsupported reference line type: {element['type']}")
+
+        lines[element["name"]] = build_line(element=element, parameters=parameters)
 
     return lines
 

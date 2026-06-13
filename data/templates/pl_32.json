@@ -1,0 +1,255 @@
+{
+  "code": "pl_32",
+  "display_code": "Пл. 32",
+  "name": "Планка з двома вертикальними завальцовками, косим уступом та похилою верхньою лінією",
+
+  "defaults": {
+    "profile_width": 3,
+    "dimension_offset": 22,
+    "text_height": 8
+  },
+
+  "profile": {
+    "type": "connected_path",
+    "elements": [
+      {
+        "type": "line",
+        "name": "left_inner_vertical",
+        "start": [
+          "C",
+          "C / tan(radians(K1)) - B"
+        ],
+        "end": [
+          "C",
+          "C / tan(radians(K1))"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "left_slanted",
+        "start": [
+          "C",
+          "C / tan(radians(K1))"
+        ],
+        "end": [
+          0,
+          0
+        ]
+      },
+      {
+        "type": "line",
+        "name": "left_vertical",
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          0,
+          "D"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "top_slanted",
+        "start": [
+          0,
+          "D"
+        ],
+        "end": [
+          "C + A",
+          "C / tan(radians(K1)) - B + E"
+        ]
+      },
+      {
+        "type": "line",
+        "name": "right_vertical",
+        "start": [
+          "C + A",
+          "C / tan(radians(K1)) - B + E"
+        ],
+        "end": [
+          "C + A",
+          "C / tan(radians(K1)) - B"
+        ]
+      }
+    ]
+  },
+
+  "reference_lines": [
+    {
+      "type": "line",
+      "name": "dimension_C_line",
+      "start": [
+        0,
+        0
+      ],
+      "end": [
+        "C",
+        0
+      ]
+    },
+    {
+      "type": "line",
+      "name": "dimension_A_line",
+      "start": [
+        "C",
+        "C / tan(radians(K1)) - B"
+      ],
+      "end": [
+        "C + A",
+        "C / tan(radians(K1)) - B"
+      ]
+    }
+  ],
+
+  "hooks": [
+    {
+      "type": "hook",
+      "name": "left_hook_z1",
+      "attach_to": "left_inner_vertical",
+      "position": "start",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "inner",
+      "label": "Z1",
+      "label_height": 8,
+      "label_fixed_side": "left",
+      "label_fixed_gap": 14
+    },
+    {
+      "type": "hook",
+      "name": "right_hook_z2",
+      "attach_to": "right_vertical",
+      "position": "end",
+      "length": 18,
+      "angle": 90,
+      "bend_side": "inner",
+      "label": "Z2",
+      "label_height": 8,
+      "label_fixed_side": "right",
+      "label_fixed_gap": 14
+    }
+  ],
+
+  "dimensions": [
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_D",
+      "param": "D",
+      "target": "left_vertical",
+      "offset": 22,
+      "side": "left",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_C",
+      "param": "C",
+      "target": "dimension_C_line",
+      "offset": 22,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_B",
+      "param": "B",
+      "target": "left_inner_vertical",
+      "offset": 28,
+      "side": "right",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_A",
+      "param": "A",
+      "target": "dimension_A_line",
+      "offset": 28,
+      "side": "right",
+      "text_rotation": "auto",
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    },
+    {
+      "type": "parallel_to_line",
+      "name": "dimension_E",
+      "param": "E",
+      "target": "right_vertical",
+      "offset": 28,
+      "side": "left",
+      "text_rotation": 90,
+      "text_side": "outside",
+      "text_gap": 5,
+      "hook_line_clearance": -1,
+      "extension_overhang": 6
+    }
+  ],
+
+  "markers": [
+    {
+      "type": "thickness_triangle",
+      "name": "thickness_marker",
+      "target": "top_slanted",
+      "auto_place": false,
+      "position": 0.45,
+      "side": "right",
+      "height": 12,
+      "depth": 10,
+      "offset": 0.5
+    }
+  ],
+
+  "angle_marks": [
+    {
+      "type": "between_lines",
+      "name": "angle_K1",
+      "param": "K1",
+
+      "line_1": "left_vertical",
+      "line_2": "left_slanted",
+
+      "center_point": "start",
+      "line_2_point": "start",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "arc_side": "other",
+      "text_rotation": "auto",
+
+      "enabled": true
+    },
+    {
+      "type": "between_lines",
+      "name": "angle_K2",
+      "param": "K2",
+
+      "line_1": "top_slanted",
+      "line_2": "right_vertical",
+
+      "center_point": "end",
+      "line_2_point": "end",
+
+      "radius": 28,
+      "tick_size": 12,
+      "text_offset": 7,
+
+      "text_rotation": "auto",
+
+      "enabled": true
+    }
+  ]
+}
