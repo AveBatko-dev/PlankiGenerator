@@ -104,18 +104,19 @@
 
   "hooks": [
     {
-      "type": "hook",
-      "name": "left_hook_z1",
-      "attach_to": "left_inner_vertical",
-      "position": "start",
-      "length": 18,
-      "angle": 90,
-      "bend_side": "inner",
-      "label": "Z1",
-      "label_height": 8,
-      "label_fixed_direction": "opposite_dimension",
-      "label_fixed_gap": 8
-    },
+  "type": "hook",
+  "name": "left_hook_z1",
+  "attach_to": "left_inner_vertical",
+  "position": "start",
+  "length": 18,
+  "angle": 90,
+  "bend_side": "inner",
+  "label": "Z1",
+  "label_height": 8,
+  "label_fixed_direction": "line_back",
+  "label_placement_mode": "strict",
+  "label_fixed_gap": 6
+},
     {
       "type": "hook",
       "name": "right_hook_z2",
