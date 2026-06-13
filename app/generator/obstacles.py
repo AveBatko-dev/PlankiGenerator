@@ -32,6 +32,6 @@ def build_obstacle_lines(template: dict, parameters: dict[str, float], lines: di
 
     for mark in template.get("angle_marks", []):
         if mark.get("enabled", False):
-            obstacles.extend(get_angle_mark_segments(mark=mark, parameters=parameters, lines=lines))
+            obstacles.extend(get_angle_mark_segments(mark=mark, parameters=parameters, lines=lines, template=template))
 
     return obstacles

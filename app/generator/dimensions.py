@@ -219,9 +219,7 @@ def draw_parallel_dimension(
     lines: dict[str, dict[str, Point]],
     template: dict | None = None,
 ):
-    param_name = dim["param"]
-    if param_name not in parameters:
-        raise ValueError(f"Missing dimension parameter: {param_name}")
+    param_value = resolve_value(dim["param"], parameters)
 
     target_name = dim["target"]
     if target_name not in lines:
@@ -256,7 +254,7 @@ def draw_parallel_dimension(
 
     add_centered_text(
         msp=msp,
-        text=fmt(parameters[param_name]),
+        text=fmt(param_value),
         position=text_position,
         height=dim.get("text_height", CAD_STYLES["text"]["height"]),
         rotation=text_rotation,

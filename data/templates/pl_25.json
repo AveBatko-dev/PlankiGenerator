@@ -56,7 +56,7 @@
       "position": "end",
       "length": 18,
       "angle": 90,
-      "bend_side": "inner",
+      "bend_side": "outer",
       "label": "Z1",
       "label_height": 8,
       "label_fixed_side": "right"
@@ -119,29 +119,41 @@
   ],
 
   "angle_marks": [
-    {
-      "type": "between_lines",
-      "name": "angle_K1",
-      "param": "K1",
+  {
+    "type": "between_lines",
+    "name": "angle_K1",
+    "param": "K1",
 
-      "line_1": "vertical_main",
-      "line_2": "bottom_slanted",
+    "line_1": "vertical_main",
+    "line_2": "bottom_slanted",
 
-      "center_point": "end",
-      "line_2_point": "end",
+    "center_point": "end",
+    "line_2_point": "end",
 
-      "radius": "B + 25",
-      "tick_size": 12,
-      "text_offset": 7,
+    "radius_mode": "near_extension_tip",
+    "radius_from_line": "line_2",
 
-      "arc_side": "other",
-      "text_rotation": "auto",
+    "extension_length": 28,
+    "max_extension_length": 55,
+    "extension_step": 4,
 
-      "auto_extensions": true,
-      "extension_lines": ["line_2"],
-      "extension_overhang": 10,
+    "selected_point_gap": 4,
+    "obstacle_clearance": 4,
 
-      "enabled": true
-    }
-  ]
+    "tick_size": 12,
+    "text_offset": 7,
+
+    "arc_side": "other",
+    "text_rotation": "auto",
+
+    "auto_extensions": true,
+    "extension_lines": ["line_2"],
+
+    "auto_radius_clearance": true,
+    "avoid_dimension_extensions": false,
+    "check_text_clearance": true,
+
+    "enabled": true
+  }
+]
 }
