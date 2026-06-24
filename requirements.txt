@@ -2,3 +2,5 @@ fastapi
 uvicorn
 ezdxf
 pydantic
+matplotlib
+Pillow

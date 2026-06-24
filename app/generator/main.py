@@ -9,7 +9,7 @@ from .obstacles import build_obstacle_lines
 from .profile import build_named_lines, draw_profile
 
 
-def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]) -> None:
+def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]):
     doc = setup_document()
     msp = doc.modelspace()
 
@@ -60,3 +60,4 @@ def generate_dxf(template: dict, output_path: Path, parameters: dict[str, float]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.saveas(output_path)
+    return doc
