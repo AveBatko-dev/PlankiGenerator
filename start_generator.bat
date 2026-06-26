@@ -5,6 +5,7 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 set "PYTHON_EXE=%~dp0venv\Scripts\python.exe"
+set "PYTHONDONTWRITEBYTECODE=1"
 
 if not exist "%PYTHON_EXE%" (
     echo Virtual environment was not found:
