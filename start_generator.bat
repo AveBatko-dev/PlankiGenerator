@@ -6,6 +6,8 @@ cd /d "%~dp0"
 
 set "PYTHON_EXE=%~dp0venv\Scripts\python.exe"
 set "PYTHONDONTWRITEBYTECODE=1"
+set "REQUEST_FILE=%~dp0generation_request.json"
+set "REQUEST_EXAMPLE=%~dp0generation_request.example.json"
 
 if not exist "%PYTHON_EXE%" (
     echo Virtual environment was not found:
@@ -22,7 +24,27 @@ if not exist "%PYTHON_EXE%" (
 echo Starting Planki Generator console...
 echo.
 
-"%PYTHON_EXE%" "%~dp0generator_cli.py" %*
+if not exist "%REQUEST_FILE%" (
+    if exist "%REQUEST_EXAMPLE%" (
+        copy "%REQUEST_EXAMPLE%" "%REQUEST_FILE%" >nul
+        echo Created file:
+        echo "%REQUEST_FILE%"
+        echo.
+        echo Edit this file: set template_code and parameters.
+        echo Then run this bat file again.
+        echo.
+        pause
+        exit /b 0
+    )
+
+    echo Generation file was not found:
+    echo "%REQUEST_FILE%"
+    echo.
+    pause
+    exit /b 1
+)
+
+"%PYTHON_EXE%" "%~dp0generator_cli.py" --file "%REQUEST_FILE%" %*
 
 echo.
 echo Program finished.

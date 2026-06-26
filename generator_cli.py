@@ -14,6 +14,7 @@ from config import OUTPUT_DIR, TEMPLATES_DIR
 
 
 COMMANDS_FILE = Path("comandes")
+DEFAULT_REQUEST_FILE = Path("generation_request.json")
 PARAM_TOKEN_RE = re.compile(r"\b[A-Z][A-Z0-9_]*\b")
 KNOWN_FUNCTIONS = {"COS", "SIN", "TAN", "RADIANS", "DEGREES", "PI"}
 PARAM_ORDER = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6}
@@ -242,17 +243,48 @@ def run_interactive() -> int:
             print("Unknown action.")
 
 
-def generate_from_commands(path: Path) -> int:
+def load_generation_rows(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
-        print(f"Commands file not found: {path}")
-        return 1
+        raise FileNotFoundError(f"Generation file not found: {path}")
 
     with path.open("r", encoding="utf-8") as file:
-        rows = json.load(file)
+        data = json.load(file)
+
+    if isinstance(data, list):
+        rows = data
+    elif isinstance(data, dict) and isinstance(data.get("drawings"), list):
+        rows = data["drawings"]
+    elif isinstance(data, dict) and "template_code" in data:
+        rows = [data]
+    else:
+        raise ValueError(
+            "Generation file must contain a list, a single drawing object, "
+            "or an object with a 'drawings' list."
+        )
+
+    normalized_rows: list[dict[str, Any]] = []
+    for index, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            raise ValueError(f"Drawing #{index} must be an object.")
+        if "template_code" not in row:
+            raise ValueError(f"Drawing #{index} is missing 'template_code'.")
+        if "parameters" not in row or not isinstance(row["parameters"], dict):
+            raise ValueError(f"Drawing #{index} is missing 'parameters' object.")
+        normalized_rows.append(row)
+
+    return normalized_rows
+
+
+def generate_from_file(path: Path) -> int:
+    try:
+        rows = load_generation_rows(path)
+    except Exception as error:
+        print(f"Error: {error}")
+        return 1
 
     total = len(rows)
     failed = 0
-    print(f"Generating {total} drawings from {path}...")
+    print(f"Generating {total} drawing(s) from {path}...")
 
     for index, row in enumerate(rows, start=1):
         template_code = normalize_template_code(str(row["template_code"]))
@@ -267,6 +299,8 @@ def generate_from_commands(path: Path) -> int:
             print(f"  DXF: {result['dxf_path']}")
             if result["dwg_path"]:
                 print(f"  DWG: {result['dwg_path']}")
+            print(f"  PNG: {result['png_original_path']}")
+            print(f"  PNG 100x200: {result['png_100x200_path']}")
             if result["dwg_error"]:
                 print(f"  DWG converter error: {result['dwg_error']}")
         except Exception as error:
@@ -279,6 +313,10 @@ def generate_from_commands(path: Path) -> int:
     return 1 if failed else 0
 
 
+def generate_from_commands(path: Path) -> int:
+    return generate_from_file(path)
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate Planki drawings without API.")
     parser.add_argument("--all", action="store_true", help="Generate all rows from comandes.")
@@ -287,6 +325,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=Path,
         default=COMMANDS_FILE,
         help="Path to commands JSON file.",
+    )
+    parser.add_argument(
+        "--file",
+        type=Path,
+        help=f"Path to generation file. Default batch file uses {DEFAULT_REQUEST_FILE}.",
     )
     parser.add_argument("--template", help="Template code, for example pl_1 or 1.")
     parser.add_argument(
@@ -304,6 +347,9 @@ def main() -> int:
     try:
         if args.all:
             return generate_from_commands(args.commands)
+
+        if args.file:
+            return generate_from_file(args.file)
 
         if args.template:
             template_code = normalize_template_code(args.template)

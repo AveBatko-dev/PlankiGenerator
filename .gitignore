@@ -9,3 +9,4 @@ venv/
 
 data/output/
 data/previews/
+generation_request.json
