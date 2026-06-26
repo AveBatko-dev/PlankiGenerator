@@ -4,18 +4,16 @@ setlocal
 chcp 65001 >nul
 cd /d "%~dp0"
 
-set "PYTHON_EXE=%~dp0venv\Scripts\python.exe"
+set "PYTHON_EXE=%~dp0python\python.exe"
 set "PYTHONDONTWRITEBYTECODE=1"
 set "REQUEST_FILE=%~dp0generation_request.json"
 set "REQUEST_EXAMPLE=%~dp0generation_request.example.json"
 
 if not exist "%PYTHON_EXE%" (
-    echo Virtual environment was not found:
+    echo Local Python runtime was not found:
     echo "%PYTHON_EXE%"
     echo.
-    echo Create it and install dependencies:
-    echo python -m venv venv
-    echo venv\Scripts\python.exe -m pip install -r requirements.txt
+    echo The archive must contain the "python" folder next to this bat file.
     echo.
     pause
     exit /b 1
@@ -44,7 +42,7 @@ if not exist "%REQUEST_FILE%" (
     exit /b 1
 )
 
-"%PYTHON_EXE%" "%~dp0generator_cli.py" --file "%REQUEST_FILE%" %*
+"%PYTHON_EXE%" -B "%~dp0generator_cli.py" --file "%REQUEST_FILE%" %*
 
 echo.
 echo Program finished.
